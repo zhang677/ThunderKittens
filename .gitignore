@@ -11,3 +11,4 @@ __pycache__/
 */printouts/*
 build/
 dist/
+thunderkittens.egg-info/

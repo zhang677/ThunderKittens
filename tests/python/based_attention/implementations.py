@@ -153,7 +153,7 @@ def based_test(dt, b, h, n, dv, causal, is_forwards, method_str, num_iters=10, v
     assert not np.isnan(y.float().cpu()).any(), "NaN values detected in output 'y'"
     assert not np.isinf(y.float().cpu()).any(), "Inf values detected in output 'y'"
     tot = sum([s.elapsed_time(e) for s, e in zip(start_events, end_events)])/num_iters
-    return y, tot
+    return (y, kv_state), tot
 
 
 IMPLEMENTATIONS = {

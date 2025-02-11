@@ -2,12 +2,13 @@
 sources = {
     'attn': {
         'source_files': {
-            'h100': 'kernels/attn/h100/h100.cu' # define these source files for each GPU target desired.
+            'h100': 'kernels/attn/h100/h100.cu', # define these source files for each GPU target desired.
         }
     },
     'hedgehog': {
         'source_files': {
-            'h100': 'kernels/hedgehog/hh.cu'
+            'h100': 'kernels/hedgehog/hh.cu',
+            'a100': 'kernels/hedgehog/hh.cu'
         }
     },
     'based': {
@@ -17,6 +18,9 @@ sources = {
             ],
             '4090': [
                 'kernels/based/lin_attn_4090.cu',
+            ],
+            'a100': [
+                'kernels/based/lin_attn_4090.cu'
             ]
         }
     },
@@ -35,7 +39,8 @@ sources = {
     },
     'fftconv': {
         'source_files': {
-            'h100': 'kernels/fftconv/pc/pc.cu'
+            'h100': 'kernels/fftconv/pc/pc.cu',
+            'a100': 'kernels/fftconv/non_pc/fftconv_tk.cu'
         }
     },
     'fused_rotary': {
@@ -45,7 +50,8 @@ sources = {
     },
     'fused_layernorm': {
         'source_files': {
-            'h100': 'kernels/layernorm/non_pc/layer_norm.cu'
+            'h100': 'kernels/layernorm/non_pc/layer_norm.cu',
+            'a100': 'kernels/layernorm/non_pc/layer_norm.cu',
         }
     },
     'mamba2': {
@@ -63,7 +69,8 @@ sources = {
 ### WHICH KERNELS DO WE WANT TO BUILD?
 # (oftentimes during development work you don't need to redefine them all.)
 # kernels = ['attn', 'mamba2', 'hedgehog', 'fftconv', 'fused_rotary', 'based', 'fused_layernorm']
-kernels = ['fp8_gemm']
+# kernels = ['fp8_gemm']
+kernels = ['based', 'fused_layernorm']
 
 ### WHICH GPU TARGET DO WE WANT TO BUILD FOR?
-target = 'h100'
+target = 'a100'

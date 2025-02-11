@@ -7,7 +7,6 @@ import time
 import argparse
     
 from collections import defaultdict
-import matplotlib.pyplot as plt
 from statistics import median
 import numpy as np
 import math
@@ -24,7 +23,7 @@ except:
     print("Could not import thunderkittens")
 
 
-from implementations import TaylorExp, TERMS, eps, based_kernel_test, get_based_inputs
+from implementations import TaylorExp, TERMS, eps, IMPLEMENTATIONS, get_based_inputs
 
 
 def __eq(str, x,y, tol=1e-5, debug=False): 
@@ -113,7 +112,7 @@ def test_correctness():
 
     # get outputs from different methods
     pytorch_v1, kv_state_v1  = pytorch_test_v1(dt, Q, K, V, d)
-    outputs, _  = based_kernel_test(dt, b, h, n, dv)
+    outputs, _  = IMPLEMENTATIONS["tk"](dt, b, h, n, dv)
     tk_outputs, kv_state_tk = outputs[0], outputs[1]
     torch.set_printoptions(sci_mode=False)
 
@@ -122,6 +121,7 @@ def test_correctness():
     print(f"Checking outputs:")
     __eq("PyTorch v1 - Based TK", pytorch_v1, tk_outputs, debug=False)
 
+    # print(tk_outputs.shape)
     print(pytorch_v1[1,head_idx,70:72,:4])
     print(tk_outputs[1,head_idx,70:72,:4])
     print()

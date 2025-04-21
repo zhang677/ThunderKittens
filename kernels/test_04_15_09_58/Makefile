@@ -1,6 +1,6 @@
 # Compiler
 NVCC?=nvcc
-GPU=A100
+GPU=L40S
 
 TARGET=test_04_15_09_58
 SRC=test_04_15_09_58.cu
@@ -15,8 +15,13 @@ ORI_NVCCFLAGS+= -I${THUNDERKITTENS_ROOT}/include -I${THUNDERKITTENS_ROOT}/protot
 # Conditional setup based on the target GPU
 ifeq ($(GPU),4090)
 NVCCFLAGS+= -DKITTENS_4090 -arch=sm_89
+ORI_NVCCFLAGS+= -DKITTENS_4090 -arch=sm_89
+else ifeq ($(GPU),L40S)
+NVCCFLAGS+= -DKITTENS_4090 -arch=sm_89
+ORI_NVCCFLAGS+= -DKITTENS_4090 -arch=sm_89
 else ifeq ($(GPU),A100)
 NVCCFLAGS+= -DKITTENS_A100 -arch=sm_80
+ORI_NVCCFLAGS+= -DKITTENS_A100 -arch=sm_80
 endif
 
 # Default target

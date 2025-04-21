@@ -25,17 +25,17 @@ ORI_NVCCFLAGS+= -DKITTENS_A100 -arch=sm_80
 endif
 
 # Default target
-all: $(TARGET)
+all: all_target
 
-$(TARGET): $(SRC)
+all_target: $(SRC)
 	$(NVCC) $(SRC) $(NVCCFLAGS) -o $(TARGET).cpython-311-x86_64-linux-gnu.so
 
 # Clean target
 clean:
-	rm -f $(TARGET)
+	rm -f $(TARGET)*.so
 
-# ec2
-ec2: $(TARGET)
+# ec2 target
+ec2: ec2_target
 
-$(TARGET): $(SRC)
+ec2_target: $(SRC)
 	$(NVCC) $(SRC) $(ORI_NVCCFLAGS) -o $(TARGET).cpython-312-x86_64-linux-gnu.so

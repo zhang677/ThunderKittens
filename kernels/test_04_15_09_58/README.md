@@ -1,0 +1,1 @@
+Modify the Makefile of 4090.cu on Runpod to align the python version with python-config version.

@@ -27,18 +27,15 @@ using namespace kittens;
 constexpr int PIPE_STAGES = 2;
 constexpr int TILE_SIZE_N = 16;
 constexpr int TILE_SIZE_D = 128;
-constexpr int QO_SEQ = TILE_SIZE_N;
-constexpr int KV_BLOCKS = 32
-constexpr int KV_SEQ = TILE_SIZE_N * KV_BLOCKS;
-template<typename T=bf16, typename L=row_l> using qkvo_tile = rt<T, TILE_SIZE_N, TILE_SIZE_N, L>;
-template<typename T=float> using attn_tile = rt<T, TILE_SIZE_D, TILE_SIZE_D>;
-using shared_tile = st_bf<TILE_SIZE_D, TILE_SIZE_N>;
-using global_kv_layout = gl<bf16, -1, KV_SEQ, -1, TILE_SIZE_D>; // batch, depth, row, col
-using global_qo_layout = gl<bf16, -1, QO_SEQ, -1, TILE_SIZE_D>;
+// constexpr int QO_SEQ = TILE_SIZE_N;
+constexpr int KV_BLOCKS = 32;
+// constexpr int KV_SEQ = TILE_SIZE_N * KV_BLOCKS;
+template<typename T=bf16, typename L=row_l> using qkvo_tile = rt<T, TILE_SIZE_N, TILE_SIZE_D, L>;
+template<typename T=float> using attn_tile = rt<T, TILE_SIZE_N, TILE_SIZE_N>;
+using shared_tile = st_bf<TILE_SIZE_N, TILE_SIZE_D>;
+using global_qkvo_layout = gl<bf16, -1, -1, -1, TILE_SIZE_D>; // batch, depth, row, col
 struct globals {
-    global_kv_layout Kg, Vg;
-    global_qo_layout Qg, Og;
-    dim3 grid()  { return dim3(Qg.batch, Qg.rows); }
+    global_qkvo_layout Qg, Kg, Vg, Og;
 };
 
 
@@ -64,27 +61,27 @@ attend_ker(const __grid_constant__ globals g) {
     __syncwarp();
     load(q_reg, qo_smem[0]);
     __syncthreads();
-    if constexpr(D == 128) q_reg *= __float2bfloat16(0.08838834764f * 1.44269504089f);
+    if constexpr(TILE_SIZE_D == 128) q_reg *= __float2bfloat16(0.08838834764f * 1.44269504089f);
 
     max_vec = base_types::constants<float>::neg_infty();
     norm_vec = 0.f;
     o_reg = 0.f;
     // launch the load of the first k, v tiles
     int tic = 0;
-    load_group::load_async<1, false>(k_smem[0][0], g.Ka, {batch, 0, head, 0});
-    load_group::load_async<1, false>(v_smem[0][0], g.Va, {batch, 0, head, 0});
+    load_async(k_smem[0], g.Kg, {batch, 0, head, 0});
+    load_async(v_smem[0], g.Vg, {batch, 0, head, 0});
     for (auto kv_idx = 0; kv_idx < KV_BLOCKS; kv_idx++, tic=(tic + 1) % PIPE_STAGES) {
         int next_load_idx = kv_idx + 1;
         if (next_load_idx * TILE_SIZE_N < g.Kg.depth()) {
             int next_tic = (tic + 1) % PIPE_STAGES;
-            load_group::load_async<1, false>(k_smem[0][next_tic], g.Kg, {batch, next_load_idx, head, 0});
-            load_group::load_async<1, false>(v_smem[0][next_tic], g.Vg, {batch, next_load_idx, head, 0});
+            load_async(k_smem[next_tic], g.Kg, {batch, next_load_idx, head, 0});
+            load_async(v_smem[next_tic], g.Vg, {batch, next_load_idx, head, 0});
             load_async_wait<1>();
         }
         else load_async_wait();
         __syncthreads();
 
-        load(k_reg, k_smem[0][tic]);
+        load(k_reg, k_smem[tic]);
         att_block = 0.f;
         mma<transpose::N, transpose::T>(att_block, q_reg, k_reg, att_block); // Q@K.T
         max_vec_last = max_vec;
@@ -94,7 +91,7 @@ attend_ker(const __grid_constant__ globals g) {
         norm_vec *= max_vec_last; 
         norm_vec = sum<axis::COL>(att_block, norm_vec); 
         att_block_mma = att_block; 
-        load(v_reg, v_smem[subtile][tic]); 
+        load(v_reg, v_smem[tic]); 
         o_reg *= max_vec_last; 
         mma<transpose::N, transpose::N>(o_reg, att_block_mma, v_reg, o_reg);
     }
@@ -114,7 +111,7 @@ void run_attend_ker(globals g) {
         mem_size
     );
     cudaDeviceSynchronize();
-    attend_ker<<<g.grid(), WARP_THREADS, mem_size>>>(g);
+    attend_ker<<<dim3(g.Qg.batch(), g.Qg.rows()), WARP_THREADS, mem_size>>>(g);
     cudaDeviceSynchronize();
     CudaCheckError();
     cudaError_t err = cudaGetLastError();

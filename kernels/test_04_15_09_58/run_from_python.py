@@ -1,3 +1,9 @@
+import sys
+import os
+cur_path = os.path.dirname(os.path.abspath(__file__))
+print(cur_path)
+sys.path.append(cur_path) 
+
 import test_04_15_09_58
 import torch
 import torch.nn.functional as F

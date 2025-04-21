@@ -28,7 +28,7 @@ constexpr int PIPE_STAGES = 2;
 constexpr int TILE_SIZE_N = 16;
 constexpr int TILE_SIZE_D = 128;
 // constexpr int QO_SEQ = TILE_SIZE_N;
-constexpr int KV_BLOCKS = 32;
+// constexpr int KV_BLOCKS = 32;
 // constexpr int KV_SEQ = TILE_SIZE_N * KV_BLOCKS;
 template<typename T=bf16, typename L=row_l> using qkvo_tile = rt<T, TILE_SIZE_N, TILE_SIZE_D, L>;
 template<typename T=float> using attn_tile = rt<T, TILE_SIZE_N, TILE_SIZE_N>;
@@ -38,9 +38,8 @@ struct globals {
     global_qkvo_layout Qg, Kg, Vg, Og;
 };
 
-
-__global__ void __launch_bounds__(WARP_THREADS, 1)
-attend_ker(const __grid_constant__ globals g) {
+__launch_bounds__(WARP_THREADS, 1)
+__global__ void attend_ker(const __grid_constant__ globals g) {
     const int batch = blockIdx.y, head = blockIdx.x;
 
     extern __shared__ alignment_dummy __shm[];
@@ -67,15 +66,15 @@ attend_ker(const __grid_constant__ globals g) {
     norm_vec = 0.f;
     o_reg = 0.f;
     // launch the load of the first k, v tiles
-    int tic = 0;
-    load_async(k_smem[0], g.Kg, {batch, 0, head, 0});
-    load_async(v_smem[0], g.Vg, {batch, 0, head, 0});
-    for (auto kv_idx = 0; kv_idx < KV_BLOCKS; kv_idx++, tic=(tic + 1) % PIPE_STAGES) {
+    int kv_blocks = g.Kg.depth() / TILE_SIZE_N, tic = 0;
+    load_async<1, false>(k_smem[0], g.Kg, {batch, 0, head, 0});
+    load_async<1, false>(v_smem[0], g.Vg, {batch, 0, head, 0});
+    for (auto kv_idx = 0; kv_idx < kv_blocks; kv_idx++, tic=(tic + 1) % PIPE_STAGES) {
         int next_load_idx = kv_idx + 1;
-        if (next_load_idx * TILE_SIZE_N < g.Kg.depth()) {
+        if (next_load_idx * TILE_SIZE_N < g.Kg.depth()) {  // Remove the redundant multiplication with TILE_SIZE_N
             int next_tic = (tic + 1) % PIPE_STAGES;
-            load_async(k_smem[next_tic], g.Kg, {batch, next_load_idx, head, 0});
-            load_async(v_smem[next_tic], g.Vg, {batch, next_load_idx, head, 0});
+            load_async<1, false>(k_smem[next_tic], g.Kg, {batch, next_load_idx, head, 0});
+            load_async<1, false>(v_smem[next_tic], g.Vg, {batch, next_load_idx, head, 0});
             load_async_wait<1>();
         }
         else load_async_wait();
@@ -111,7 +110,7 @@ void run_attend_ker(globals g) {
         mem_size
     );
     cudaDeviceSynchronize();
-    attend_ker<<<dim3(g.Qg.batch(), g.Qg.rows()), WARP_THREADS, mem_size>>>(g);
+    attend_ker<<<dim3(g.Qg.rows(), g.Qg.batch()), WARP_THREADS, mem_size>>>(g);
     cudaDeviceSynchronize();
     CudaCheckError();
     cudaError_t err = cudaGetLastError();

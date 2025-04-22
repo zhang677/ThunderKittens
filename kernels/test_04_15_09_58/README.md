@@ -12,3 +12,5 @@ python filter_output.py output_details.csv output_attend_ker.csv
 Note: this script appends to the output latency file.
 
 python plot_latency.py profile_results/output.csv profile_results/output.png
+
+python plot_multi_latency.py profile_results/four_outputs.png profile_results/output_17x8x16x64.csv profile_results/output_17x8x16x128.csv profile_results/output_17x8x32x64.csv profile_results/output_17x8x32x128.csv

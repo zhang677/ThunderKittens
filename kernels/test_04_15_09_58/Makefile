@@ -1,6 +1,6 @@
 # Compiler
 NVCC?=nvcc
-GPU=L40S
+GPU?=L40S
 
 TARGET=test_04_15_09_58
 SRC=test_04_15_09_58.cu

@@ -49,13 +49,14 @@ __global__ void attend_ker(const __grid_constant__ globals g) {
     extern __shared__ alignment_dummy __shm[];
     shared_allocator al((int*)&__shm[0]);
 
-    shared_tile (&k_smem)[PIPE_STAGES] = al.allocate<shared_tile, PIPE_STAGES>();
-    shared_tile (&v_smem)[PIPE_STAGES] = al.allocate<shared_tile, PIPE_STAGES>();
-    shared_tile (&qo_smem)[1] = al.allocate<shared_tile, 1>();
+    shared_tile (&k_smem)[PIPE_STAGES] = al.allocate<shared_kv_tile, PIPE_STAGES>();
+    shared_tile (&v_smem)[PIPE_STAGES] = al.allocate<shared_kv_tile, PIPE_STAGES>();
+    shared_tile (&qo_smem)[1] = al.allocate<shared_qo_tile, 1>();
 
-    qkvo_tile<bf16> q_reg, k_reg;
-    qkvo_tile<bf16, col_l> v_reg;
-    qkvo_tile<float> o_reg;
+    kv_tile<bf16> k_reg;
+    qo_tile<bf16> q_reg;
+    kv_tile<bf16, col_l> v_reg;
+    qo_tile<float> o_reg;
     attn_tile<float> att_block;
     attn_tile<bf16> att_block_mma;
     typename attn_tile<float>::col_vec max_vec_last, max_vec, norm_vec;
@@ -107,7 +108,7 @@ __global__ void attend_ker(const __grid_constant__ globals g) {
 }
 
 void run_attend_ker(globals g) {
-    unsigned long mem_size = (kittens::MAX_SHARED_MEMORY) / 2;
+    unsigned long mem_size = PIPE_STAGES * TILE_SIZE_N * TILE_SIZE_D * 2 * 2 + TILE_SIZE_M * TILE_SIZE_D * 2 * 2;
     cudaFuncSetAttribute(
         attend_ker,
         cudaFuncAttributeMaxDynamicSharedMemorySize,

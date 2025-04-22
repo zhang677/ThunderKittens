@@ -26,47 +26,55 @@ using namespace kittens;
 
 constexpr int PIPE_STAGES = 2;
 constexpr int TILE_SIZE_N = 16;
-constexpr int TILE_SIZE_M = 32;
-constexpr int TILE_SIZE_D = 64;
-// constexpr int QO_SEQ = TILE_SIZE_N;
-// constexpr int KV_BLOCKS = 32;
-// constexpr int KV_SEQ = TILE_SIZE_N * KV_BLOCKS;
+// TILE_SIZE_M and TILE_SIZE_D are now template parameters
 
-template<typename T=bf16, typename L=row_l> using kv_tile = rt<T, TILE_SIZE_N, TILE_SIZE_D, L>;
-template<typename T=bf16, typename L=row_l> using qo_tile = rt<T, TILE_SIZE_M, TILE_SIZE_D, L>;
-template<typename T=float> using attn_tile = rt<T, TILE_SIZE_M, TILE_SIZE_N>;
-using shared_kv_tile = st_bf<TILE_SIZE_N, TILE_SIZE_D>;
-using shared_qo_tile = st_bf<TILE_SIZE_M, TILE_SIZE_D>;
-using global_qkvo_layout = gl<bf16, -1, -1, -1, TILE_SIZE_D>; // batch, depth, row, col
-struct globals {
-    global_qkvo_layout Qg, Kg, Vg, Og;
+template<int M, int D>
+struct attend_params {
+    static_assert(M == 16 || M == 32, "TILE_SIZE_M must be either 16 or 32");
+    static_assert(D == 64 || D == 128, "TILE_SIZE_D must be either 64 or 128");
+    
+    template<typename T=bf16, typename L=row_l> using kv_tile = rt<T, TILE_SIZE_N, D, L>;
+    template<typename T=bf16, typename L=row_l> using qo_tile = rt<T, M, D, L>;
+    template<typename T=float> using attn_tile = rt<T, M, TILE_SIZE_N>;
+    using shared_kv_tile = st_bf<TILE_SIZE_N, D>;
+    using shared_qo_tile = st_bf<M, D>;
+    using global_qkvo_layout = gl<bf16, -1, -1, -1, D>; // batch, depth, row, col
 };
 
+template<int M, int D>
+struct globals {
+    typename attend_params<M, D>::global_qkvo_layout Qg, Kg, Vg, Og;
+};
+
+template<int M, int D>
 __launch_bounds__(WARP_THREADS, 1)
-__global__ void attend_ker(const __grid_constant__ globals g) {
+__global__ void attend_ker(const __grid_constant__ globals<M, D> g) {
+    using params = attend_params<M, D>;
+    
     const int batch = blockIdx.y, head = blockIdx.x;
 
     extern __shared__ alignment_dummy __shm[];
     shared_allocator al((int*)&__shm[0]);
 
-    shared_kv_tile (&k_smem)[PIPE_STAGES] = al.allocate<shared_kv_tile, PIPE_STAGES>();
-    shared_kv_tile (&v_smem)[PIPE_STAGES] = al.allocate<shared_kv_tile, PIPE_STAGES>();
-    shared_qo_tile (&qo_smem)[1] = al.allocate<shared_qo_tile, 1>();
+    typename params::shared_kv_tile (&k_smem)[PIPE_STAGES] = al.allocate<typename params::shared_kv_tile, PIPE_STAGES>();
+    typename params::shared_kv_tile (&v_smem)[PIPE_STAGES] = al.allocate<typename params::shared_kv_tile, PIPE_STAGES>();
+    typename params::shared_qo_tile (&qo_smem)[1] = al.allocate<typename params::shared_qo_tile, 1>();
 
-    kv_tile<bf16> k_reg;
-    qo_tile<bf16> q_reg;
-    kv_tile<bf16, col_l> v_reg;
-    qo_tile<float> o_reg;
-    attn_tile<float> att_block;
-    attn_tile<bf16> att_block_mma;
-    typename attn_tile<float>::col_vec max_vec_last, max_vec, norm_vec;
+    typename params::template kv_tile<bf16> k_reg;
+    typename params::template qo_tile<bf16> q_reg;
+    typename params::template kv_tile<bf16, col_l> v_reg;
+    typename params::template qo_tile<float> o_reg;
+    typename params::template attn_tile<float> att_block;
+    typename params::template attn_tile<bf16> att_block_mma;
+    typename params::template attn_tile<float>::col_vec max_vec_last, max_vec, norm_vec;
+    
     // going through shared memory improves coalescing of dram reads.
     load<1, false>(qo_smem[0], g.Qg, {batch, 0, head, 0});
     __syncwarp();
     load(q_reg, qo_smem[0]);
     __syncthreads();
-    if constexpr(TILE_SIZE_D == 128) q_reg *= __float2bfloat16(0.08838834764f * 1.44269504089f);
-    else if constexpr(TILE_SIZE_D == 64) q_reg *= __float2bfloat16(0.125f * 1.44269504089f);
+    if constexpr(D == 128) q_reg *= __float2bfloat16(0.08838834764f * 1.44269504089f);
+    else if constexpr(D == 64) q_reg *= __float2bfloat16(0.125f * 1.44269504089f);
 
     max_vec = base_types::constants<float>::neg_infty();
     norm_vec = 0.f;
@@ -108,15 +116,16 @@ __global__ void attend_ker(const __grid_constant__ globals g) {
     store<1, false>(g.Og, qo_smem[0], {batch, 0, head, 0});
 }
 
-void run_attend_ker(globals g) {
-    unsigned long mem_size = (kittens::MAX_SHARED_MEMORY) / 2;// PIPE_STAGES * TILE_SIZE_N * TILE_SIZE_D * 2 * 2 + TILE_SIZE_M * TILE_SIZE_D * 2 * 2; 
+template<int M, int D>
+void run_attend_ker(globals<M, D> g) {
+    unsigned long mem_size = (kittens::MAX_SHARED_MEMORY) / 2;
     cudaFuncSetAttribute(
-        attend_ker,
+        attend_ker<M, D>,
         cudaFuncAttributeMaxDynamicSharedMemorySize,
         mem_size
     );
     cudaDeviceSynchronize();
-    attend_ker<<<dim3(g.Qg.rows(), g.Qg.batch()), WARP_THREADS, mem_size>>>(g);
+    attend_ker<M, D><<<dim3(g.Qg.rows(), g.Qg.batch()), WARP_THREADS, mem_size>>>(g);
     cudaDeviceSynchronize();
     CudaCheckError();
     cudaError_t err = cudaGetLastError();
@@ -128,5 +137,17 @@ void run_attend_ker(globals g) {
 
 PYBIND11_MODULE(test_04_15_09_58, m) {
     m.doc() = "test_04_15_09_58 python module";
-    py::bind_function<run_attend_ker>(m, "wrapped_attend_ker", &globals::Qg, &globals::Kg, &globals::Vg, &globals::Og);
+    
+    // Expose the different template specializations
+    py::bind_function<run_attend_ker<16, 64>>(m, "wrapped_attend_ker_16_64", 
+        &globals<16, 64>::Qg, &globals<16, 64>::Kg, &globals<16, 64>::Vg, &globals<16, 64>::Og);
+    
+    py::bind_function<run_attend_ker<16, 128>>(m, "wrapped_attend_ker_16_128", 
+        &globals<16, 128>::Qg, &globals<16, 128>::Kg, &globals<16, 128>::Vg, &globals<16, 128>::Og);
+    
+    py::bind_function<run_attend_ker<32, 64>>(m, "wrapped_attend_ker_32_64", 
+        &globals<32, 64>::Qg, &globals<32, 64>::Kg, &globals<32, 64>::Vg, &globals<32, 64>::Og);
+    
+    py::bind_function<run_attend_ker<32, 128>>(m, "wrapped_attend_ker_32_128", 
+        &globals<32, 128>::Qg, &globals<32, 128>::Kg, &globals<32, 128>::Vg, &globals<32, 128>::Og);
 }

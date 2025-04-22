@@ -15,7 +15,8 @@ def filter_csv(input_file, output_file):
         
         # Keep only the required columns
         filtered_df = df[required_columns]
-        
+        # Filter out rows with empty 'Metric Value'
+        filtered_df = filtered_df[filtered_df["Metric Value"].notna()]
         # Write to the output CSV file
         filtered_df.to_csv(output_file, index=False)
         

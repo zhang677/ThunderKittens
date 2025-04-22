@@ -26,7 +26,7 @@ using namespace kittens;
 
 constexpr int PIPE_STAGES = 2;
 constexpr int TILE_SIZE_N = 16;
-constexpr int TILE_SIZE_M = 16;
+constexpr int TILE_SIZE_M = 32;
 constexpr int TILE_SIZE_D = 64;
 // constexpr int QO_SEQ = TILE_SIZE_N;
 // constexpr int KV_BLOCKS = 32;

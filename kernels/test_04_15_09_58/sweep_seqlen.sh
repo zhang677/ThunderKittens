@@ -2,10 +2,10 @@
 
 mkdir -p profile_results
 
-B="17"
-H="8"
-M="32"
-D="64"
+B=17
+H=8
+M=32
+D=64
 SUMMARY_FILE="profile_results/output.csv"
 # Write header to the CSV file
 echo "shape,latency" > $SUMMARY_FILE
@@ -13,7 +13,7 @@ echo "shape,latency" > $SUMMARY_FILE
 for tN in 16 32 96 160 224 268 332 396; do
     # Calculate N based on the current value of tN
     N=$((tN * 16))
-    PROBLEM_SHAPE="$Bx$Hx$Mx$Nx$D"
+    PROBLEM_SHAPE="${B}x${H}x${M}x${N}x${D}"
     echo "Running $PROBLEM_SHAPE"
     ncu --export profile_results/ncu_report -f --set full --target-processes all python run_once.py $B $H $M $N $D
 

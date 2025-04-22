@@ -108,7 +108,7 @@ __global__ void attend_ker(const __grid_constant__ globals g) {
 }
 
 void run_attend_ker(globals g) {
-    unsigned long mem_size = PIPE_STAGES * TILE_SIZE_N * TILE_SIZE_D * 2 * 2 + TILE_SIZE_M * TILE_SIZE_D * 2 * 2; // (kittens::MAX_SHARED_MEMORY) / 2;// 
+    unsigned long mem_size = (kittens::MAX_SHARED_MEMORY) / 2;// PIPE_STAGES * TILE_SIZE_N * TILE_SIZE_D * 2 * 2 + TILE_SIZE_M * TILE_SIZE_D * 2 * 2; 
     cudaFuncSetAttribute(
         attend_ker,
         cudaFuncAttributeMaxDynamicSharedMemorySize,

@@ -64,6 +64,16 @@ def plot_latency_curves(files, output_file="latency_plot.png"):
                      markersize=8,
                      label=label)
             
+            sim_file = file.replace('output', 'simulated')
+            df_sim = load_and_process_file(sim_file)
+            plt.plot(df_sim['N'], df_sim['latency'],
+                        marker=markers[i], 
+                        color=colors[i], 
+                        linestyle='--', 
+                        linewidth=2, 
+                        markersize=8,
+                        label=f"{label} (simulated)")
+            
         except Exception as e:
             print(f"Error processing file {file}: {e}")
     
@@ -71,12 +81,21 @@ def plot_latency_curves(files, output_file="latency_plot.png"):
     # plt.ylim(26660, 1212093)  # Using the min and max values provided
     
     # Add labels and legend
+    # plt.xlabel('N Dimension', fontsize=14)
+    # plt.ylabel('Latency (cycles)', fontsize=14)
+    # plt.title('Latency vs N Dimension', fontsize=16)
+    # plt.grid(True, linestyle='--', alpha=0.7)
+    # plt.legend(fontsize=12)
+    # Set y-axis to logarithmic scale
+    plt.yscale('log')
+    
+    # Add labels and legend
     plt.xlabel('N Dimension', fontsize=14)
     plt.ylabel('Latency (cycles)', fontsize=14)
-    plt.title('Latency vs N Dimension', fontsize=16)
+    plt.title('Latency vs N Dimension (Log Scale)', fontsize=16)
     plt.grid(True, linestyle='--', alpha=0.7)
     plt.legend(fontsize=12)
-
+    
     # Save the plot
     plt.tight_layout()
     plt.savefig(output_file, dpi=300)

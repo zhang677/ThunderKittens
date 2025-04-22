@@ -26,8 +26,8 @@ using namespace kittens;
 
 constexpr int PIPE_STAGES = 2;
 constexpr int TILE_SIZE_N = 16;
-constexpr int TILE_SIZE_M = 32;
-constexpr int TILE_SIZE_D = 128;
+constexpr int TILE_SIZE_M = 16;
+constexpr int TILE_SIZE_D = 64;
 // constexpr int QO_SEQ = TILE_SIZE_N;
 // constexpr int KV_BLOCKS = 32;
 // constexpr int KV_SEQ = TILE_SIZE_N * KV_BLOCKS;
@@ -66,6 +66,7 @@ __global__ void attend_ker(const __grid_constant__ globals g) {
     load(q_reg, qo_smem[0]);
     __syncthreads();
     if constexpr(TILE_SIZE_D == 128) q_reg *= __float2bfloat16(0.08838834764f * 1.44269504089f);
+    else if constexpr(TILE_SIZE_D == 64) q_reg *= __float2bfloat16(0.125f * 1.44269504089f);
 
     max_vec = base_types::constants<float>::neg_infty();
     norm_vec = 0.f;

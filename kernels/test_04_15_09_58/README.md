@@ -7,3 +7,8 @@ ncu --export ncu_report -f --set full --target-processes all python bench.py
 ncu --import ncu_report.ncu-rep --kernel-name "attend_ker" --csv --page details --log-file output_details.csv
 
 python filter_output.py output_details.csv output_attend_ker.csv
+
+./sweep_seqlen.sh
+Note: this script appends to the output latency file.
+
+python plot_latency.py profile_results/output.csv profile_results/output.png

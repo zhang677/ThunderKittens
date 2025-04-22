@@ -28,4 +28,4 @@ elif M == 16 and D == 128:
     test_04_15_09_58.wrapped_attend_ker_16_128(q, k, v, output)
 else:
     print("Unsupported configuration")
-    continue
+    sys.exit(1)

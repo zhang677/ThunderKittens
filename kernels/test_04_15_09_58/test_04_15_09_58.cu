@@ -26,13 +26,17 @@ using namespace kittens;
 
 constexpr int PIPE_STAGES = 2;
 constexpr int TILE_SIZE_N = 16;
+constexpr int TILE_SIZE_M = 32;
 constexpr int TILE_SIZE_D = 128;
 // constexpr int QO_SEQ = TILE_SIZE_N;
 // constexpr int KV_BLOCKS = 32;
 // constexpr int KV_SEQ = TILE_SIZE_N * KV_BLOCKS;
-template<typename T=bf16, typename L=row_l> using qkvo_tile = rt<T, TILE_SIZE_N, TILE_SIZE_D, L>;
-template<typename T=float> using attn_tile = rt<T, TILE_SIZE_N, TILE_SIZE_N>;
-using shared_tile = st_bf<TILE_SIZE_N, TILE_SIZE_D>;
+
+template<typename T=bf16, typename L=row_l> using kv_tile = rt<T, TILE_SIZE_N, TILE_SIZE_D, L>;
+template<typename T=bf16, typename L=row_l> using qo_tile = rt<T, TILE_SIZE_M, TILE_SIZE_D, L>;
+template<typename T=float> using attn_tile = rt<T, TILE_SIZE_M, TILE_SIZE_N>;
+using shared_kv_tile = st_bf<TILE_SIZE_N, TILE_SIZE_D>;
+using shared_qo_tile = st_bf<TILE_SIZE_M, TILE_SIZE_D>;
 using global_qkvo_layout = gl<bf16, -1, -1, -1, TILE_SIZE_D>; // batch, depth, row, col
 struct globals {
     global_qkvo_layout Qg, Kg, Vg, Og;

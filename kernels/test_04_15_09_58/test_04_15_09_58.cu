@@ -30,8 +30,8 @@ constexpr int TILE_SIZE_N = 16;
 
 template<int M, int D>
 struct attend_params {
-    static_assert(M == 16 || M == 32, "TILE_SIZE_M must be either 16 or 32");
-    static_assert(D == 64 || D == 128, "TILE_SIZE_D must be either 64 or 128");
+    static_assert(M == 16 || M == 32 || M == 48 || M == 64, "TILE_SIZE_M must be either {16, 32, 48, 64}");
+    static_assert(D == 64 || D == 96 || D == 128 || D == 160, "TILE_SIZE_D must be either {64, 96, 128, 160}");
     
     template<typename T=bf16, typename L=row_l> using kv_tile = rt<T, TILE_SIZE_N, D, L>;
     template<typename T=bf16, typename L=row_l> using qo_tile = rt<T, M, D, L>;

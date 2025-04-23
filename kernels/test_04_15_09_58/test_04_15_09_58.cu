@@ -75,6 +75,8 @@ __global__ void attend_ker(const __grid_constant__ globals<M, D> g) {
     __syncthreads();
     if constexpr(D == 128) q_reg *= __float2bfloat16(0.08838834764f * 1.44269504089f);
     else if constexpr(D == 64) q_reg *= __float2bfloat16(0.125f * 1.44269504089f);
+    else if constexpr(D == 96) q_reg *= __float2bfloat16(0.10206207262f * 1.44269504089f);
+    else if constexpr(D == 160) q_reg *= __float2bfloat16(0.07905694151f * 1.44269504089f);
 
     max_vec = base_types::constants<float>::neg_infty();
     norm_vec = 0.f;
@@ -141,13 +143,37 @@ PYBIND11_MODULE(test_04_15_09_58, m) {
     // Expose the different template specializations
     py::bind_function<run_attend_ker<16, 64>>(m, "wrapped_attend_ker_16_64", 
         &globals<16, 64>::Qg, &globals<16, 64>::Kg, &globals<16, 64>::Vg, &globals<16, 64>::Og);
-    
+    py::bind_function<run_attend_ker<16, 96>>(m, "wrapped_attend_ker_16_96", 
+        &globals<16, 96>::Qg, &globals<16, 96>::Kg, &globals<16, 96>::Vg, &globals<16, 96>::Og);  
     py::bind_function<run_attend_ker<16, 128>>(m, "wrapped_attend_ker_16_128", 
         &globals<16, 128>::Qg, &globals<16, 128>::Kg, &globals<16, 128>::Vg, &globals<16, 128>::Og);
-    
+    py::bind_function<run_attend_ker<16, 160>>(m, "wrapped_attend_ker_16_160", 
+        &globals<16, 160>::Qg, &globals<16, 160>::Kg, &globals<16, 160>::Vg, &globals<16, 160>::Og);
+
     py::bind_function<run_attend_ker<32, 64>>(m, "wrapped_attend_ker_32_64", 
         &globals<32, 64>::Qg, &globals<32, 64>::Kg, &globals<32, 64>::Vg, &globals<32, 64>::Og);
-    
+    py::bind_function<run_attend_ker<32, 96>>(m, "wrapped_attend_ker_32_96", 
+        &globals<32, 96>::Qg, &globals<32, 96>::Kg, &globals<32, 96>::Vg, &globals<32, 96>::Og);
     py::bind_function<run_attend_ker<32, 128>>(m, "wrapped_attend_ker_32_128", 
         &globals<32, 128>::Qg, &globals<32, 128>::Kg, &globals<32, 128>::Vg, &globals<32, 128>::Og);
+    py::bind_function<run_attend_ker<32, 160>>(m, "wrapped_attend_ker_32_160", 
+        &globals<32, 160>::Qg, &globals<32, 160>::Kg, &globals<32, 160>::Vg, &globals<32, 160>::Og);
+
+    py::bind_function<run_attend_ker<48, 64>>(m, "wrapped_attend_ker_48_64", 
+        &globals<48, 64>::Qg, &globals<48, 64>::Kg, &globals<48, 64>::Vg, &globals<48, 64>::Og);
+    py::bind_function<run_attend_ker<48, 96>>(m, "wrapped_attend_ker_48_96", 
+        &globals<48, 96>::Qg, &globals<48, 96>::Kg, &globals<48, 96>::Vg, &globals<48, 96>::Og);
+    py::bind_function<run_attend_ker<48, 128>>(m, "wrapped_attend_ker_48_128", 
+        &globals<48, 128>::Qg, &globals<48, 128>::Kg, &globals<48, 128>::Vg, &globals<48, 128>::Og);
+    py::bind_function<run_attend_ker<48, 160>>(m, "wrapped_attend_ker_48_160", 
+        &globals<48, 160>::Qg, &globals<48, 160>::Kg, &globals<48, 160>::Vg, &globals<48, 160>::Og);
+
+    py::bind_function<run_attend_ker<64, 64>>(m, "wrapped_attend_ker_64_64", 
+        &globals<64, 64>::Qg, &globals<64, 64>::Kg, &globals<64, 64>::Vg, &globals<64, 64>::Og);
+    py::bind_function<run_attend_ker<64, 96>>(m, "wrapped_attend_ker_64_96", 
+        &globals<64, 96>::Qg, &globals<64, 96>::Kg, &globals<64, 96>::Vg, &globals<64, 96>::Og);
+    py::bind_function<run_attend_ker<64, 128>>(m, "wrapped_attend_ker_64_128", 
+        &globals<64, 128>::Qg, &globals<64, 128>::Kg, &globals<64, 128>::Vg, &globals<64, 128>::Og);
+    py::bind_function<run_attend_ker<64, 160>>(m, "wrapped_attend_ker_64_160", 
+        &globals<64, 160>::Qg, &globals<64, 160>::Kg, &globals<64, 160>::Vg, &globals<64, 160>::Og);
 }

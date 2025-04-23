@@ -11,6 +11,12 @@ python filter_output.py output_details.csv output_attend_ker.csv
 ./sweep_seqlen.sh
 Note: this script appends to the output latency file.
 
-python plot_latency.py profile_results/output.csv profile_results/output.png
+python plot_scripts/plot_latency.py profile_results/output.csv profile_results/output.png
 
-python plot_multi_latency.py profile_results/four_outputs.png profile_results/output_17x8x16x64.csv profile_results/output_17x8x16x128.csv profile_results/output_17x8x32x64.csv profile_results/output_17x8x32x128.csv
+python plot_scripts/plot_multi_latency.py profile_results/four_outputs.png profile_results/output_17x8x16x64.csv profile_results/output_17x8x16x128.csv profile_results/output_17x8x32x64.csv profile_results/output_17x8x32x128.csv
+
+python plot_scripts/plot_multi_latency.py profile_results/four_simulations.png profile_results/simulated_17x8x16x64.csv profile_results/simulated_17x8x16x128.csv profile_results/simulated_17x8x32x64.csv profile_results/simulated_17x8x32x128.csv
+
+python plot_scripts/plot_latency_compare.py profile_results/four_compare.png profile_results/output_17x8x16x64.csv profile_results/output_17x8x16x128.csv profile_results/output_17x8x32x64.csv profile_results/output_17x8x32x128.csv
+
+python plot_scripts/plot_rel_error.py profile_results/four_relative.png profile_results/output_17x8x16x64.csv profile_results/output_17x8x16x128.csv profile_results/output_17x8x32x64.csv profile_results/output_17x8x32x128.csv

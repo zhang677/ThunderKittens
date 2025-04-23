@@ -32,9 +32,6 @@ def plot_latency_curves(files, output_file="latency_plot.png"):
     colors = ['blue', 'red', 'green', 'purple']
     markers = ['o', 's', '^', 'x']
     
-    # min_latency = float('inf')
-    # max_latency = 0
-    
     for i, file in enumerate(files):
         if i >= 4:  # Limit to 4 files
             print(f"Warning: Only processing the first 4 files. Skipping {file}")
@@ -51,12 +48,11 @@ def plot_latency_curves(files, output_file="latency_plot.png"):
         try:
             df = load_and_process_file(file)
             
-            # Update min/max latency
-            # min_latency = min(min_latency, df['latency'].min())
-            # max_latency = max(max_latency, df['latency'].max())
-            
+            sim_file = file.replace('output', 'simulated')
+            df_sim = load_and_process_file(sim_file)
             # Plot the curve
-            plt.plot(df['N'], df['latency'], 
+            # Plot the curve - calculate percentage error
+            plt.plot(df['N'], 100 * (df_sim['latency'] - df['latency']) / df['latency'], 
                      marker=markers[i], 
                      color=colors[i], 
                      linestyle='-', 
@@ -64,37 +60,19 @@ def plot_latency_curves(files, output_file="latency_plot.png"):
                      markersize=8,
                      label=label)
             
-            sim_file = file.replace('output', 'simulated')
-            df_sim = load_and_process_file(sim_file)
-            plt.plot(df_sim['N'], df_sim['latency'],
-                        marker=markers[i], 
-                        color=colors[i], 
-                        linestyle='--', 
-                        linewidth=2, 
-                        markersize=8,
-                        label=f"{label} (simulated)")
-            
         except Exception as e:
             print(f"Error processing file {file}: {e}")
     
-    # Set y-axis limits to the provided values
-    # plt.ylim(26660, 1212093)  # Using the min and max values provided
-    
-    # Add labels and legend
-    # plt.xlabel('N Dimension', fontsize=14)
-    # plt.ylabel('Latency (cycles)', fontsize=14)
-    # plt.title('Latency vs N Dimension', fontsize=16)
-    # plt.grid(True, linestyle='--', alpha=0.7)
-    # plt.legend(fontsize=12)
-    # Set y-axis to logarithmic scale
-    plt.yscale('log')
-    
-    # Add labels and legend
+    # Add labels and legend with percentage formatting
     plt.xlabel('N Dimension', fontsize=14)
-    plt.ylabel('Latency (cycles)', fontsize=14)
-    plt.title('Latency vs N Dimension (Log Scale)', fontsize=16)
+    plt.ylabel('Error (%)', fontsize=14)  # Updated label
+    plt.title('(Sim - Real) / Real vs N Dimension', fontsize=16)  # Updated title
     plt.grid(True, linestyle='--', alpha=0.7)
     plt.legend(fontsize=12)
+    
+    # Format y-axis as percentage
+    from matplotlib.ticker import PercentFormatter
+    plt.gca().yaxis.set_major_formatter(PercentFormatter())
     
     # Save the plot
     plt.tight_layout()

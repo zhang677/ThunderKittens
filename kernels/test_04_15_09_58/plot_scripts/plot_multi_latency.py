@@ -82,7 +82,6 @@ def plot_latency_curves(files, output_file="latency_plot.png"):
     plt.savefig(output_file, dpi=300)
     print(f"Plot saved as {output_file}")
 
-
 def main():
     """Main function to parse command line arguments and plot data"""
     if len(sys.argv) < 3 or len(sys.argv) > 6:

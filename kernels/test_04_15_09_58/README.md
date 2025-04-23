@@ -20,3 +20,5 @@ python plot_scripts/plot_multi_latency.py profile_results/four_simulations.png p
 python plot_scripts/plot_latency_compare.py profile_results/four_compare.png profile_results/output_17x8x16x64.csv profile_results/output_17x8x16x128.csv profile_results/output_17x8x32x64.csv profile_results/output_17x8x32x128.csv
 
 python plot_scripts/plot_rel_error.py profile_results/four_relative.png profile_results/output_17x8x16x64.csv profile_results/output_17x8x16x128.csv profile_results/output_17x8x32x64.csv profile_results/output_17x8x32x128.csv
+
+python plot_scripts/plot_16_rel_error.py profile_results/16_relative.png

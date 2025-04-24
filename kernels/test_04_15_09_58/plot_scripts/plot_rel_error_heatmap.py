@@ -52,9 +52,10 @@ def plot_error_heatmap(output_file):
     cbar = plt.colorbar(im, label='Relative Error (%)')
     
     # Add percentage text on each cell
+    threshold = np.max(np.abs(error_matrix)) * 0.7
     for i in range(4):
         for j in range(4):
-            text_color = 'white' if abs(error_matrix[i, j]) > np.max(error_matrix) * 0.7 else 'black'
+            text_color = 'white' if abs(error_matrix[i, j]) > threshold else 'black'
             plt.text(j, i, f"{error_matrix[i, j]:.1f}%", 
                      ha="center", va="center", color=text_color,
                      fontsize=11, fontweight='bold')
@@ -63,7 +64,7 @@ def plot_error_heatmap(output_file):
     plt.yticks(np.arange(4), ['16', '32', '48', '64'])
     plt.xlabel('D', fontsize=12, fontweight='bold')
     plt.ylabel('M', fontsize=12, fontweight='bold')
-    plt.title('Relative Error Heatmap', fontsize=14, fontweight='bold')
+    plt.title('(Sim - Real) / Real Heatmap', fontsize=14, fontweight='bold')
     
     plt.tight_layout()
     plt.savefig(output_file, dpi=300, bbox_inches='tight')

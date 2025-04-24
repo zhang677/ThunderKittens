@@ -22,3 +22,8 @@ python plot_scripts/plot_latency_compare.py profile_results/four_compare.png pro
 python plot_scripts/plot_rel_error.py profile_results/four_relative.png profile_results/output_17x8x16x64.csv profile_results/output_17x8x16x128.csv profile_results/output_17x8x32x64.csv profile_results/output_17x8x32x128.csv
 
 python plot_scripts/plot_16_rel_error.py profile_results/16_relative.png
+
+python plot_scripts/plot_16_reg.py profile_results/16_regs.png
+
+python plot_scripts/plot_rel_error_heatmap.py profile_results/16_relative_heatmap.png
+

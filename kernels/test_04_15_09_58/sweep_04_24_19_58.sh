@@ -20,7 +20,7 @@ for M in 16 32 48 64; do
             N=$((tN * 16))
             PROBLEM_SHAPE="${B}x${H}x${M}x${N}x${D}"
             echo "Running $PROBLEM_SHAPE"
-            ncu --export $BASE_DIR/ncu_report -f --set full --target-processes all python run_once.py $B $H $M $N $D
+            ncu --launch-skip 4 --launch-count 1 --export $BASE_DIR/ncu_report -f --set full --target-processes all python run_once.py $B $H $M $N $D
 
             echo "Extracting metrics"
             ncu --import $BASE_DIR/ncu_report.ncu-rep --kernel-name "attend_ker" --csv --page details --log-file $BASE_DIR/output_$PROBLEM_SHAPE.csv

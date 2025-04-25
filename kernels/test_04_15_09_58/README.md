@@ -4,6 +4,8 @@ pip install pybind11
 
 ncu --export ncu_report -f --set full --target-processes all python bench.py
 
+ncu --launch-skip 4 --launch-count 1 --export ncu_report -f --set full --target-processes all python run_once.py 13 8 16 512 64
+
 ncu --import ncu_report.ncu-rep --kernel-name "attend_ker" --csv --page details --log-file output_details.csv
 
 python filter_output.py output_details.csv output_attend_ker.csv

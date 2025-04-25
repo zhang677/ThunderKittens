@@ -87,17 +87,29 @@ def plot_latency_curves(files, output_file="latency_plot.png"):
     print(f"Plot saved as {output_file}")
 
 
-def main():
+def main(arch, output_file):
     """Main function to parse command line arguments and plot data"""
-    base_dir = "/scratch/zgh23/ThunderKittens/kernels/test_04_15_09_58/profile_results"
+    if arch == "l40s":
+        shape = "17x8"
+    elif arch == "a100":
+        shape = "13x8"
+    else:
+        print("Unsupported architecture. Please use 'l40s' or 'a100'.")
+        sys.exit(1)
+    base_dir = f"/scratch/zgh23/ThunderKittens/kernels/test_04_15_09_58/profile_results_{arch}"
     files = []
     for m in [16, 32, 48, 64]:
         for d in [64, 96, 128, 160]:
-            filename = f"{base_dir}/output_17x8x{m}x{d}.csv"
+            filename = f"{base_dir}/output_{shape}x{m}x{d}.csv"
             files.append(filename)
     
     # Plot the latency curves
-    plot_latency_curves(files, output_file=sys.argv[1])
+    plot_latency_curves(files, output_file)
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) != 3:
+        print("Usage: python plot_16_rel_error.py <arch> <output_file>")
+        sys.exit(1)
+    arch = sys.argv[1]
+    output_file = sys.argv[2]
+    main(arch, output_file)

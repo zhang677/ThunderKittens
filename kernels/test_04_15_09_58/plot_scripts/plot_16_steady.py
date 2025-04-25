@@ -27,10 +27,17 @@ def load_and_process_file(filename):
     
     return last_line
 
-def plot_latency_d(output_file):
+def plot_latency_d(arch, output_file):
     plt.figure(figsize=(12, 8))
 
-    base_dir = "/scratch/zgh23/ThunderKittens/kernels/test_04_15_09_58/profile_results"
+    if arch == "a100":
+        base_shape = "13x8"
+    elif arch == "l40s":
+        base_shape = "17x8"
+    else:
+        raise ValueError("Unsupported architecture. Use 'a100' or 'l40s'.") 
+
+    base_dir = f"/scratch/zgh23/ThunderKittens/kernels/test_04_15_09_58/profile_results_{arch}"
     
     # Define m and d values
     m_values = [16, 32, 48, 64]
@@ -48,7 +55,7 @@ def plot_latency_d(output_file):
         sim_latencies = []
         
         for d in d_values:
-            filename = f"{base_dir}/output_17x8x{m}x{d}.csv"
+            filename = f"{base_dir}/output_{base_shape}x{m}x{d}.csv"
             run_last_line = load_and_process_file(filename)
             sim_file = filename.replace('output', 'simulated')
             sim_last_line = load_and_process_file(sim_file)
@@ -74,10 +81,15 @@ def plot_latency_d(output_file):
     plt.savefig(output_file)
     plt.close()
 
-def plot_latency_m(output_file):
+def plot_latency_m(arch, output_file):
     plt.figure(figsize=(12, 8))
-
-    base_dir = "/scratch/zgh23/ThunderKittens/kernels/test_04_15_09_58/profile_results"
+    if arch == "a100":
+        base_shape = "13x8"
+    elif arch == "l40s":
+        base_shape = "17x8"
+    else:
+        raise ValueError("Unsupported architecture. Use 'a100' or 'l40s'.") 
+    base_dir = f"/scratch/zgh23/ThunderKittens/kernels/test_04_15_09_58/profile_results_{arch}"
     
     # Define m and d values
     m_values = [16, 32, 48, 64]
@@ -95,7 +107,7 @@ def plot_latency_m(output_file):
         sim_latencies = []
         
         for m in m_values:
-            filename = f"{base_dir}/output_17x8x{m}x{d}.csv"
+            filename = f"{base_dir}/output_{base_shape}x{m}x{d}.csv"
             run_last_line = load_and_process_file(filename)
             sim_file = filename.replace('output', 'simulated')
             sim_last_line = load_and_process_file(sim_file)
@@ -122,11 +134,18 @@ def plot_latency_m(output_file):
     plt.close()
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: python plot_16_steady.py <output_file>")
+    if len(sys.argv) != 4:
+        print("Usage: python plot_16_steady.py <{d,m}> arch <output_file>")
         sys.exit(1)
     
-    output_file = sys.argv[1]
-    # plot_latency_d(output_file)
-    plot_latency_m(output_file)
+    output_file = sys.argv[3]
+    arch = sys.argv[2]
+    mode = sys.argv[1]
+    if mode == "d":
+        plot_latency_d(arch, output_file)
+    elif mode == "m":
+        plot_latency_m(arch, output_file)
+    else:
+        print("Invalid mode. Use 'd' for latency vs d or 'm' for latency vs m.")
+        sys.exit(1)
     print(f"Plot saved as {output_file}")

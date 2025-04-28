@@ -1,5 +1,5 @@
 #!/bin/bash
-BASE_DIR=profil_results_l40s
+BASE_DIR=profile_results_l40s
 mkdir -p $BASE_DIR
 
 B=17

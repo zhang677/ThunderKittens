@@ -101,13 +101,13 @@ __global__ void attend_ker(const __grid_constant__ globals<M, D> g) {
         mma<transpose::N, transpose::T>(att_block, q_reg, k_reg, att_block); // Q@K.T
         max_vec_last = max_vec;
         max_vec = max<axis::COL>(att_block, max_vec); 
-        att_block = exp2(att_block - max_vec); 
-        max_vec_last = exp2(max_vec_last - max_vec);
+        att_block = exp2(att_block - max_vec); // M * Tn
+        max_vec_last = exp2(max_vec_last - max_vec); // M
         norm_vec *= max_vec_last; 
-        norm_vec = sum<axis::COL>(att_block, norm_vec); 
+        norm_vec = sum<axis::COL>(att_block, norm_vec);  // M * Tn
         att_block_mma = att_block; 
         load(v_reg, v_smem[tic]); 
-        o_reg *= max_vec_last; 
+        o_reg *= max_vec_last;  // M * d
         mma<transpose::N, transpose::N>(o_reg, att_block_mma, v_reg, o_reg);
     }
 

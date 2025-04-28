@@ -1,0 +1,4 @@
+python plot_scripts/plot_16_steady_roofline.py m a100 profile_results_a100/16_steady_m_roofline.png
+python plot_scripts/plot_16_steady_roofline.py d a100 profile_results_a100/16_steady_d_roofline.png
+python plot_scripts/plot_16_steady_roofline.py d l40s profile_results_l40s/16_steady_d_roofline.png
+python plot_scripts/plot_16_steady_roofline.py m l40s profile_results_l40s/16_steady_m_roofline.png

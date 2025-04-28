@@ -29,7 +29,7 @@ python plot_scripts/plot_16_reg.py profile_results/16_regs.png
 
 python plot_scripts/plot_rel_error_heatmap.py profile_results/16_relative_heatmap.png
 
-python plot_scripts/plot_16_steady.py d profile_results/16_steady_d.png
+python plot_scripts/plot_16_steady.py d a100 profile_results_a100/16_steady_d.png
 
 python plot_scripts/plot_16_steady.py m profile_results/16_steady_m.png
 

@@ -1,0 +1,75 @@
+Section Name,Metric Name,Metric Unit,Metric Value
+GPU Speed Of Light Throughput,DRAM Frequency,Ghz,8.98
+GPU Speed Of Light Throughput,SM Frequency,Ghz,1.06
+GPU Speed Of Light Throughput,Elapsed Cycles,cycle,79110
+GPU Speed Of Light Throughput,Memory Throughput,%,81.70
+GPU Speed Of Light Throughput,DRAM Throughput,%,81.70
+GPU Speed Of Light Throughput,Duration,us,74.34
+GPU Speed Of Light Throughput,L1/TEX Cache Throughput,%,13.86
+GPU Speed Of Light Throughput,L2 Cache Throughput,%,29.45
+GPU Speed Of Light Throughput,SM Active Cycles,cycle,71872.51
+GPU Speed Of Light Throughput,Compute (SM) Throughput,%,10.62
+PM Sampling,Maximum Buffer Size,Mbyte,4.19
+PM Sampling,Dropped Samples,sample,0
+PM Sampling,Maximum Sampling Interval,us,1
+PM Sampling,# Pass Groups,,2
+Compute Workload Analysis,Executed Ipc Active,inst/cycle,0.34
+Compute Workload Analysis,Executed Ipc Elapsed,inst/cycle,0.31
+Compute Workload Analysis,Issue Slots Busy,%,8.60
+Compute Workload Analysis,Issued Ipc Active,inst/cycle,0.34
+Compute Workload Analysis,SM Busy,%,8.60
+Memory Workload Analysis,Memory Throughput,Gbyte/s,704.56
+Memory Workload Analysis,Mem Busy,%,15.22
+Memory Workload Analysis,Max Bandwidth,%,81.70
+Memory Workload Analysis,L1/TEX Hit Rate,%,0.08
+Memory Workload Analysis,L2 Compression Success Rate,%,0
+Memory Workload Analysis,L2 Compression Ratio,,0
+Memory Workload Analysis,L2 Hit Rate,%,50.66
+Memory Workload Analysis,Mem Pipes Busy,%,10.62
+Scheduler Statistics,One or More Eligible,%,34.34
+Scheduler Statistics,Issued Warp Per Scheduler,,0.34
+Scheduler Statistics,No Eligible,%,65.66
+Scheduler Statistics,Active Warps Per Scheduler,warp,1.00
+Scheduler Statistics,Eligible Warps Per Scheduler,warp,0.34
+Warp State Statistics,Warp Cycles Per Issued Instruction,cycle,2.91
+Warp State Statistics,Warp Cycles Per Executed Instruction,cycle,2.92
+Warp State Statistics,Avg. Active Threads Per Warp,,32
+Warp State Statistics,Avg. Not Predicated Off Threads Per Warp,,28.70
+Instruction Statistics,Avg. Executed Instructions Per Scheduler,inst,6174.35
+Instruction Statistics,Executed Instructions,inst,3507032
+Instruction Statistics,Avg. Issued Instructions Per Scheduler,inst,6179.86
+Instruction Statistics,Issued Instructions,inst,3510160
+Launch Statistics,Block Size,,32
+Launch Statistics,Function Cache Configuration,,CachePreferNone
+Launch Statistics,Grid Size,,136
+Launch Statistics,Registers Per Thread,register/thread,223
+Launch Statistics,Shared Memory Configuration Size,Kbyte,102.40
+Launch Statistics,Driver Shared Memory Per Block,Kbyte/block,1.02
+Launch Statistics,Dynamic Shared Memory Per Block,Kbyte/block,50
+Launch Statistics,Static Shared Memory Per Block,byte/block,0
+Launch Statistics,# SMs,SM,142
+Launch Statistics,Threads,thread,4352
+Launch Statistics,Uses Green Context,,0
+Launch Statistics,Waves Per SM,,0.48
+Occupancy,Block Limit SM,block,24
+Occupancy,Block Limit Registers,block,8
+Occupancy,Block Limit Shared Mem,block,2
+Occupancy,Block Limit Warps,block,48
+Occupancy,Theoretical Active Warps per SM,warp,2
+Occupancy,Theoretical Occupancy,%,4.17
+Occupancy,Achieved Occupancy,%,2.08
+Occupancy,Achieved Active Warps Per SM,warp,1.00
+GPU and Memory Workload Distribution,Average DRAM Active Cycles,cycle,545564
+GPU and Memory Workload Distribution,Total DRAM Elapsed Cycles,cycle,8012800
+GPU and Memory Workload Distribution,Average L1 Active Cycles,cycle,71872.51
+GPU and Memory Workload Distribution,Total L1 Elapsed Cycles,cycle,11233192
+GPU and Memory Workload Distribution,Average L2 Active Cycles,cycle,92160.17
+GPU and Memory Workload Distribution,Total L2 Elapsed Cycles,cycle,4806480
+GPU and Memory Workload Distribution,Average SM Active Cycles,cycle,71872.51
+GPU and Memory Workload Distribution,Total SM Elapsed Cycles,cycle,11233192
+GPU and Memory Workload Distribution,Average SMSP Active Cycles,cycle,17996.80
+GPU and Memory Workload Distribution,Total SMSP Elapsed Cycles,cycle,44932768
+Source Counters,Branch Instructions Ratio,%,0.01
+Source Counters,Branch Instructions,inst,25976
+Source Counters,Branch Efficiency,%,100
+Source Counters,Avg. Divergent Branches,,0

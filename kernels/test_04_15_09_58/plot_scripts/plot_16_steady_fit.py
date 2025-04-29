@@ -65,36 +65,38 @@ def plot_latency_d(arch, output_file):
     
     # Create plot for latency vs. d for each m
     plt.figure(figsize=(10, 6))
-    last_lines = []
+    
     for i, m in enumerate(m_values):
         real_latencies = []
-        sim_latencies = []
+        slopes = []
+        intercepts = []
         roofline_latencies = []
-        
         for d in d_values:
             filename = f"{base_dir}/output_{base_shape}x{m}x{d}.csv"
             run_last_line = load_and_process_file(filename)
-            sim_file = filename.replace('output', 'simulated')
-            sim_last_line = load_and_process_file(sim_file)
-            last_lines.append(run_last_line)
             
             real_latencies.append(run_last_line['latency'])
-            sim_latencies.append(sim_last_line['latency'])
-            roofline_latency = calculate_roofline(sim_last_line, bandwidth, mm_thpt, vec_thpt)
+            roofline_latency = calculate_roofline(run_last_line, bandwidth, mm_thpt, vec_thpt)
             roofline_latencies.append(roofline_latency)
         
-        plt.plot(d_values, roofline_latencies, color=colors[i], linestyle=':',
-                label=f'Roofline m={m}', linewidth=2)
+        for j in range(len(real_latencies) - 1):
+            slope = (real_latencies[j + 1] - real_latencies[j]) / (d_values[j + 1] - d_values[j])
+            intercept = real_latencies[j] - slope * d_values[j]
+            slopes.append(slope)
+            intercepts.append(intercept)
+
+        # Roofline slope and intercept
+        roofline_slope = (roofline_latencies[-1] - roofline_latencies[0]) / (d_values[-1] - d_values[0])
+        roofline_intercept = roofline_latencies[0] - roofline_slope * d_values[0]  
         # Plot real data with solid lines (-)
         plt.plot(d_values, real_latencies, color=colors[i], marker=markers[i], 
-                 linestyle='-', label=f'Real m={m}')
+                 linestyle='-', label=f'Real m={m}; Roofline: k={roofline_slope:.2f}, b={roofline_intercept:.2f}')
         
-        # Plot simulated data with dashed lines (--)
-        plt.plot(d_values, sim_latencies, color=colors[i], marker=markers[i], 
-                 linestyle='--', label=f'Sim m={m}')
-
-
-    
+        # Display slope and intercept on top of each line
+        for j in range(len(slopes)):
+            plt.text((d_values[j] + d_values[j+1]) / 2, (real_latencies[j] + real_latencies[j+1]) / 2, f"k: {slopes[j]:.2f}  b: {intercepts[j]:.2f}", 
+                     fontsize=8, color=colors[i], ha='center', va='bottom')
+        
     plt.xlabel('D', fontsize=12)
     plt.ylabel('Latency (cycles)', fontsize=12)
     plt.title('Latency vs. d for Different Values of m', fontsize=14)
@@ -107,19 +109,10 @@ def plot_latency_d(arch, output_file):
 
 def plot_latency_m(arch, output_file):
     plt.figure(figsize=(12, 8))
-
     if arch == "a100":
         base_shape = "13x8"
-        freq = 1.41 * 1e9
-        bandwidth = 1.5 * 1e12 / freq
-        mm_thpt = 312 * 1e12 / freq
-        vec_thpt = 39 * 1e12 / freq
     elif arch == "l40s":
         base_shape = "17x8"
-        freq = 1.06 * 1e9
-        bandwidth = 864 * 1e9 / freq
-        mm_thpt = 362 * 1e12 / freq
-        vec_thpt = 91.6 * 1e12 / freq
     else:
         raise ValueError("Unsupported architecture. Use 'a100' or 'l40s'.") 
     base_dir = f"/scratch/zgh23/ThunderKittens/kernels/test_04_15_09_58/profile_results_{arch}"
@@ -137,30 +130,28 @@ def plot_latency_m(arch, output_file):
     
     for i, d in enumerate(d_values):
         real_latencies = []
-        sim_latencies = []
-        roofline_latencies = []
-        
+        slopes = []
+        intercepts = []
         for m in m_values:
             filename = f"{base_dir}/output_{base_shape}x{m}x{d}.csv"
             run_last_line = load_and_process_file(filename)
-            sim_file = filename.replace('output', 'simulated')
-            sim_last_line = load_and_process_file(sim_file)
             
             real_latencies.append(run_last_line['latency'])
-            sim_latencies.append(sim_last_line['latency'])
-            roofline_latency = calculate_roofline(sim_last_line, bandwidth, mm_thpt, vec_thpt)
-            roofline_latencies.append(roofline_latency)
         
-        plt.plot(m_values, roofline_latencies, color=colors[i], linestyle=':',
-                label=f'Roofline d={d}', linewidth=2)
+        for j in range(len(real_latencies) - 1):
+            slope = (real_latencies[j + 1] - real_latencies[j]) / (m_values[j + 1] - m_values[j])
+            intercept = real_latencies[j] - slope * m_values[j]
+            slopes.append(slope)
+            intercepts.append(intercept)
             
         # Plot real data with solid lines (-)
         plt.plot(m_values, real_latencies, color=colors[i], marker=markers[i], 
-                 linestyle='-', label=f'Real d={d}')
+                 linestyle='-', label=f'Real m={m}')
         
-        # Plot simulated data with dashed lines (--)
-        plt.plot(m_values, sim_latencies, color=colors[i], marker=markers[i], 
-                 linestyle='--', label=f'Sim d={d}')
+        # Display slope and intercept on top of each line
+        for j in range(len(slopes)):
+            plt.text((m_values[j] + m_values[j+1]) / 2, (real_latencies[j] + real_latencies[j+1]) / 2, f"k: {slopes[j]:.2f}\nb: {intercepts[j]:.2f}", 
+                     fontsize=8, color=colors[i], ha='center', va='bottom')
     
     plt.xlabel('M', fontsize=12)
     plt.ylabel('Latency (cycles)', fontsize=12)

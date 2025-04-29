@@ -33,3 +33,4 @@ python plot_scripts/plot_16_steady.py d a100 profile_results_a100/16_steady_d.pn
 
 python plot_scripts/plot_16_steady.py m profile_results/16_steady_m.png
 
+python plot_scripts/plot_16_steady_fit.py d a100 profile_results_a100/16_fit_d.png

@@ -27,12 +27,41 @@ def load_and_process_file(filename):
     
     return last_line
 
-def calculate_roofline(last_line, bandwidth, mm_thpt, vec_thpt):
+def extract_total_bytes(df):
+    thpt_line = df[(df["Section Name"] == "Memory Workload Analysis") & (df["Metric Name"] ==  "Memory Throughput")]
+    thpt_unit = thpt_line["Metric Unit"].values[0]
+    thpt_value = float(thpt_line["Metric Value"].values[0])
+    if thpt_unit == "Gbyte/s":
+        thpt_value *= 1e9
+    elif thpt_unit == "Mbyte/s":
+        thpt_value *= 1e6
+    else:
+        raise ValueError(f"Unknown unit: {thpt_unit}")
+    
+    time_line = df[(df["Section Name"] == "GPU Speed Of Light Throughput") & (df["Metric Name"] ==  "Duration")]
+    time_unit = time_line["Metric Unit"].values[0]
+    time_value = float(time_line["Metric Value"].values[0])
+    if time_unit == "ms":
+        time_value *= 1e-3
+    elif time_unit == "us":
+        time_value *= 1e-6
+    elif time_unit == "ns":
+        time_value *= 1e-9
+    else:
+        raise ValueError(f"Unknown unit: {time_unit}")
+    
+    return thpt_value * time_value
+
+def calculate_roofline(last_line, base_dir, bandwidth, mm_thpt, vec_thpt):
+    profile_file = os.path.join(base_dir, f"short_{last_line['shape']}.csv")
+    df = pd.read_csv(profile_file)
     shape = [int(x) for x in last_line['shape'].split('x')]
+    total_bytes = extract_total_bytes(df)
     b, h, m, n, d = shape
-    total_bytes = b * h * (2 * m * d * 2 + 2 * n * d * 2)
+    minimal_bytes = b * h * (2 * m * d * 2 + 2 * n * d * 2)
     compute_latency = b * h * (2 * m * n * d * 2 / mm_thpt + (2 * m * 16 + m * d) * n / 16 / vec_thpt)
     memory_latency = total_bytes / bandwidth
+    print(f"{(total_bytes - minimal_bytes) / total_bytes * 100:.2f}%")
     return max(memory_latency, compute_latency)
 
 def plot_latency_d(arch, output_file):
@@ -40,7 +69,7 @@ def plot_latency_d(arch, output_file):
 
     if arch == "a100":
         base_shape = "13x8"
-        freq = 1.41 * 1e9
+        freq = 1.10 * 1e9
         bandwidth = 1.5 * 1e12 / freq
         mm_thpt = 312 * 1e12 / freq
         vec_thpt = 39 * 1e12 / freq
@@ -80,7 +109,7 @@ def plot_latency_d(arch, output_file):
             
             real_latencies.append(run_last_line['latency'])
             sim_latencies.append(sim_last_line['latency'])
-            roofline_latency = calculate_roofline(sim_last_line, bandwidth, mm_thpt, vec_thpt)
+            roofline_latency = calculate_roofline(sim_last_line, base_dir, bandwidth, mm_thpt, vec_thpt)
             roofline_latencies.append(roofline_latency)
         
         plt.plot(d_values, roofline_latencies, color=colors[i], linestyle=':',
@@ -148,7 +177,7 @@ def plot_latency_m(arch, output_file):
             
             real_latencies.append(run_last_line['latency'])
             sim_latencies.append(sim_last_line['latency'])
-            roofline_latency = calculate_roofline(sim_last_line, bandwidth, mm_thpt, vec_thpt)
+            roofline_latency = calculate_roofline(sim_last_line, base_dir, bandwidth, mm_thpt, vec_thpt)
             roofline_latencies.append(roofline_latency)
         
         plt.plot(m_values, roofline_latencies, color=colors[i], linestyle=':',

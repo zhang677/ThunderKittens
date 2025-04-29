@@ -1,0 +1,4 @@
+python plot_scripts/plot_16_calc_roofline.py m a100 profile_results_a100/16_calc_m_roofline.png
+python plot_scripts/plot_16_calc_roofline.py d a100 profile_results_a100/16_calc_d_roofline.png
+python plot_scripts/plot_16_calc_roofline.py d l40s profile_results_l40s/16_calc_d_roofline.png
+python plot_scripts/plot_16_calc_roofline.py m l40s profile_results_l40s/16_calc_m_roofline.png

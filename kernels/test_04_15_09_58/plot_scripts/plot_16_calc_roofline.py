@@ -139,7 +139,7 @@ def plot_latency_m(arch, output_file):
 
     if arch == "a100":
         base_shape = "13x8"
-        freq = 1.41 * 1e9
+        freq = 1.10 * 1e9
         bandwidth = 1.5 * 1e12 / freq
         mm_thpt = 312 * 1e12 / freq
         vec_thpt = 39 * 1e12 / freq

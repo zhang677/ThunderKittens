@@ -36,3 +36,5 @@ python plot_scripts/plot_16_steady.py d l40s profile_results_l40s/16_steady_d.pn
 python plot_scripts/plot_16_steady_fit.py d a100 profile_results_a100/16_fit_d.png
 
 python plot_scripts/plot_util.py profile_results_a100 a100
+
+python plot_scripts/plot_16_steady_roofline.py d a100 profile_results_a100/16_steady_d_roofline.png

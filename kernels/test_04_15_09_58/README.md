@@ -38,3 +38,5 @@ python plot_scripts/plot_16_steady_fit.py d a100 profile_results_a100/16_fit_d.p
 python plot_scripts/plot_util.py profile_results_a100 a100
 
 python plot_scripts/plot_16_steady_roofline.py d a100 profile_results_a100/16_steady_d_roofline.png
+
+python plot_scripts/plot_single_roofline.py profile_results_a100/short_13x8x32x6336x160.csv a100 profile_results_a100/plot_roofline_13x8x32x6336x160.png

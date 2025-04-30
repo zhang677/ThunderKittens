@@ -27,7 +27,13 @@ def load_and_process_file(filename):
     
     return last_line
 
-def plot_latency_d(arch, output_file):
+def get_memory_utilization(last_line, base_dir):
+    profile_file = os.path.join(base_dir, f"short_{last_line['shape']}.csv")
+    df = pd.read_csv(profile_file)
+    thpt_line = df[(df["Section Name"] == "GPU Speed Of Light Throughput") & (df["Metric Name"] ==  "DRAM Throughput")]
+    return float(thpt_line["Metric Value"].values[0]) * 0.01
+
+def plot_latency(arch, output_file, mode):
     plt.figure(figsize=(12, 8))
 
     if arch == "a100":
@@ -40,8 +46,14 @@ def plot_latency_d(arch, output_file):
     base_dir = f"/scratch/zgh23/ThunderKittens/kernels/test_04_15_09_58/profile_results_{arch}"
     
     # Define m and d values
-    m_values = [16, 32, 48, 64]
-    d_values = [64, 96, 128, 160]
+    if mode == "d":
+        out_values = [16, 32, 48, 64]
+        in_values = [64, 96, 128, 160]
+    elif mode == "m":
+        out_values = [64, 96, 128, 160]
+        in_values = [16, 32, 48, 64]
+    else:
+        raise ValueError("Invalid mode. Use 'd' for latency vs d or 'm' for latency vs m.")
     
     # Define colors and markers for different curves
     colors = ['blue', 'red', 'green', 'purple']
@@ -50,11 +62,20 @@ def plot_latency_d(arch, output_file):
     # Create plot for latency vs. d for each m
     plt.figure(figsize=(10, 6))
     
-    for i, m in enumerate(m_values):
+    for i, out_v in enumerate(out_values):
         real_latencies = []
         sim_latencies = []
-        
-        for d in d_values:
+        simulation_ratio = []
+        real_ratio = []
+        for in_v in in_values:
+            if mode == "d":
+                d = in_v
+                m = out_v
+            elif mode == "m":
+                d = out_v
+                m = in_v
+            else:
+                raise ValueError("Invalid mode. Use 'd' for latency vs d or 'm' for latency vs m.")
             filename = f"{base_dir}/output_{base_shape}x{m}x{d}.csv"
             run_last_line = load_and_process_file(filename)
             sim_file = filename.replace('output', 'simulated')
@@ -62,18 +83,23 @@ def plot_latency_d(arch, output_file):
             
             real_latencies.append(run_last_line['latency'])
             sim_latencies.append(sim_last_line['latency'])
+            real_ratio.append(get_memory_utilization(run_last_line, base_dir))
+            simulation_ratio.append(sim_latencies[-1] / real_latencies[-1])
             
         # Plot real data with solid lines (-)
-        plt.plot(d_values, real_latencies, color=colors[i], marker=markers[i], 
+        plt.plot(in_values, real_latencies, color=colors[i], marker=markers[i], 
                  linestyle='-', label=f'Real m={m}')
         
         # Plot simulated data with dashed lines (--)
-        plt.plot(d_values, sim_latencies, color=colors[i], marker=markers[i], 
+        plt.plot(in_values, sim_latencies, color=colors[i], marker=markers[i], 
                  linestyle='--', label=f'Sim m={m}')
-    
-    plt.xlabel('D', fontsize=12)
-    plt.ylabel('Latency (cycles)', fontsize=12)
-    plt.title('Latency vs. d for Different Values of m', fontsize=14)
+        for j in range(len(real_latencies)):
+            plt.text(in_values[j], real_latencies[j], f"M: {real_ratio[j]:.3f} S: {simulation_ratio[j]:.3f}", 
+                     fontsize=8, color=colors[i], ha='center', va='bottom')
+    plt.yscale('log')
+    plt.xlabel(mode, fontsize=12)
+    plt.ylabel('Log Latency (cycles)', fontsize=12)
+    plt.title(f'Latency vs. {mode}', fontsize=14)
     plt.grid(True, linestyle='--', alpha=0.7)
     plt.legend(loc='best')
     
@@ -81,57 +107,6 @@ def plot_latency_d(arch, output_file):
     plt.savefig(output_file)
     plt.close()
 
-def plot_latency_m(arch, output_file):
-    plt.figure(figsize=(12, 8))
-    if arch == "a100":
-        base_shape = "13x8"
-    elif arch == "l40s":
-        base_shape = "17x8"
-    else:
-        raise ValueError("Unsupported architecture. Use 'a100' or 'l40s'.") 
-    base_dir = f"/scratch/zgh23/ThunderKittens/kernels/test_04_15_09_58/profile_results_{arch}"
-    
-    # Define m and d values
-    m_values = [16, 32, 48, 64]
-    d_values = [64, 96, 128, 160]
-    
-    # Define colors and markers for different curves
-    colors = ['blue', 'red', 'green', 'purple']
-    markers = ['o', 's', '^', 'x']
-    
-    # Create plot for latency vs. d for each m
-    plt.figure(figsize=(10, 6))
-    
-    for i, d in enumerate(d_values):
-        real_latencies = []
-        sim_latencies = []
-        
-        for m in m_values:
-            filename = f"{base_dir}/output_{base_shape}x{m}x{d}.csv"
-            run_last_line = load_and_process_file(filename)
-            sim_file = filename.replace('output', 'simulated')
-            sim_last_line = load_and_process_file(sim_file)
-            
-            real_latencies.append(run_last_line['latency'])
-            sim_latencies.append(sim_last_line['latency'])
-            
-        # Plot real data with solid lines (-)
-        plt.plot(m_values, real_latencies, color=colors[i], marker=markers[i], 
-                 linestyle='-', label=f'Real d={d}')
-        
-        # Plot simulated data with dashed lines (--)
-        plt.plot(m_values, sim_latencies, color=colors[i], marker=markers[i], 
-                 linestyle='--', label=f'Sim d={d}')
-    
-    plt.xlabel('M', fontsize=12)
-    plt.ylabel('Latency (cycles)', fontsize=12)
-    plt.title('Latency vs. m for Different Values of d', fontsize=14)
-    plt.grid(True, linestyle='--', alpha=0.7)
-    plt.legend(loc='best')
-    
-    plt.tight_layout()
-    plt.savefig(output_file)
-    plt.close()
 
 if __name__ == "__main__":
     if len(sys.argv) != 4:
@@ -141,11 +116,5 @@ if __name__ == "__main__":
     output_file = sys.argv[3]
     arch = sys.argv[2]
     mode = sys.argv[1]
-    if mode == "d":
-        plot_latency_d(arch, output_file)
-    elif mode == "m":
-        plot_latency_m(arch, output_file)
-    else:
-        print("Invalid mode. Use 'd' for latency vs d or 'm' for latency vs m.")
-        sys.exit(1)
+    plot_latency(arch, output_file, mode)
     print(f"Plot saved as {output_file}")

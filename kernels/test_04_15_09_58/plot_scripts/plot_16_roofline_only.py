@@ -62,13 +62,7 @@ def calculate_roofline(last_line, base_dir, bandwidth, mm_thpt, vec_thpt):
     compute_latency = b * h * (2 * m * n * d * 2 / mm_thpt + (2 * m * 16 + m * d) * n / 16 / vec_thpt)
     memory_latency = total_bytes / bandwidth
     rel_err = (total_bytes - minimal_bytes) / total_bytes
-    return max(memory_latency, compute_latency), rel_err
-
-def get_memory_utilization(last_line, base_dir):
-    profile_file = os.path.join(base_dir, f"short_{last_line['shape']}.csv")
-    df = pd.read_csv(profile_file)
-    thpt_line = df[(df["Section Name"] == "GPU Speed Of Light Throughput") & (df["Metric Name"] ==  "DRAM Throughput")]
-    return float(thpt_line["Metric Value"].values[0]) * 0.01
+    return max(memory_latency, compute_latency), 'm' if memory_latency > compute_latency else 'c', rel_err
 
 def plot_latency(arch, output_file, mode):
     plt.figure(figsize=(12, 8))
@@ -108,13 +102,10 @@ def plot_latency(arch, output_file, mode):
     plt.figure(figsize=(10, 6))
     
     for i, out_v in enumerate(out_values):
-        real_latencies = []
         slopes = []
         intercepts = []
         roofline_latencies = []
-        rel_errors = []
-        roofline_ratio = []
-        real_ratio = []
+        ridges = []
         for in_v in in_values:
             if mode == "d":
                 d = in_v
@@ -127,35 +118,23 @@ def plot_latency(arch, output_file, mode):
             filename = f"{base_dir}/output_{base_shape}x{m}x{d}.csv"
             run_last_line = load_and_process_file(filename)
             
-            real_latencies.append(run_last_line['latency'])
-            roofline_latency, rel_err = calculate_roofline(run_last_line, base_dir, bandwidth, mm_thpt, vec_thpt)
+            roofline_latency, ridge, rel_err = calculate_roofline(run_last_line, base_dir, bandwidth, mm_thpt, vec_thpt)
             roofline_latencies.append(roofline_latency)
-            rel_errors.append(rel_err)
-            roofline_ratio.append(roofline_latency / real_latencies[-1])
-            real_ratio.append(get_memory_utilization(run_last_line, base_dir))
+            ridges.append(ridge)
         
-        for j in range(len(real_latencies) - 1):
-            slope = (real_latencies[j + 1] - real_latencies[j]) / (in_values[j + 1] - in_values[j])
-            intercept = real_latencies[j] - slope * in_values[j]
+        for j in range(len(roofline_latencies) - 1):
+            slope = (roofline_latencies[j + 1] - roofline_latencies[j]) / (in_values[j + 1] - in_values[j])
+            intercept = roofline_latencies[j] - slope * in_values[j]
             slopes.append(slope)
             intercepts.append(intercept)
-
-        bytes_error_str = ", ".join([f"{e:.2f}" for e in rel_errors])
-        # Plot real data with solid lines (-)
-        plt.plot(in_values, real_latencies, color=colors[i], marker=markers[i], 
-                 linestyle='-', label=f'Real {mode}={out_v}')
         
-        # Plot roofline data with dashed lines (--)
-        plt.plot(in_values, roofline_latencies, color=colors[i], linestyle='--', 
-                 label=f'Roofline {mode}={out_v}; Bytes Err: {bytes_error_str}')
+        ridges_str = ', '.join(ridges)
+        plt.plot(in_values, roofline_latencies, color=colors[i], marker=markers[i], linestyle='-', 
+                 label=f'Roofline {mode}={out_v}; Ridges: {ridges_str}', linewidth=2)
 
         # Display slope and intercept on top of each line
-        # for j in range(len(slopes)):
-        #     plt.text((in_values[j] + in_values[j+1]) / 2, (real_latencies[j] + real_latencies[j+1]) / 2, f"k: {slopes[j]:.2f}  b: {intercepts[j]:.2f}", 
-        #              fontsize=8, color=colors[i], ha='center', va='bottom')
-        # Display roofline ratio on points
-        for j in range(len(real_latencies)):
-            plt.text(in_values[j], real_latencies[j], f"M: {real_ratio[j]:.3f} R: {roofline_ratio[j]:.3f}", 
+        for j in range(len(slopes)):
+            plt.text((in_values[j] + in_values[j+1]) / 2, (roofline_latencies[j] + roofline_latencies[j+1]) / 2, f"k: {slopes[j]:.2f}  b: {intercepts[j]:.2f}", 
                      fontsize=8, color=colors[i], ha='center', va='bottom')
         
     plt.xlabel(mode, fontsize=12)

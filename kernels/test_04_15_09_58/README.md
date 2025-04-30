@@ -31,6 +31,8 @@ python plot_scripts/plot_rel_error_heatmap.py profile_results/16_relative_heatma
 
 python plot_scripts/plot_16_steady.py d a100 profile_results_a100/16_steady_d.png
 
-python plot_scripts/plot_16_steady.py m profile_results/16_steady_m.png
+python plot_scripts/plot_16_steady.py d l40s profile_results_l40s/16_steady_d.png
 
 python plot_scripts/plot_16_steady_fit.py d a100 profile_results_a100/16_fit_d.png
+
+python plot_scripts/plot_util.py profile_results_a100 a100

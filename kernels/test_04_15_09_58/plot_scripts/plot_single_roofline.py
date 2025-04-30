@@ -39,7 +39,7 @@ def get_points(df, arch_config):
         points[tier] = (x, y)
     return points
 
-def plot_roofline(df, arch_config, output_file):
+def plot_roofline(df, exp_name, arch_config, output_file):
     points = get_points(df, arch_config)
     # Get min x and max x 
     x_min = min(points["l1"][0], points["l2"][0], points["dram"][0])
@@ -73,10 +73,23 @@ def plot_roofline(df, arch_config, output_file):
     for tier, point in points.items():
         print(f"{tier}: {point}")
         plt.scatter(point[0], point[1], color=colors[tier], label=tier)
+    # Create custom tick formatter to display actual values instead of log values
+    def format_ticks_x(x, pos):
+        return f"{10**x:.2f}"
+    
+    def format_ticks_y(y, pos):
+        return f"{10**y:.2f}"
+    
+    # Apply formatters to axes
+    ax = plt.gca()
+    from matplotlib.ticker import FuncFormatter
+    ax.xaxis.set_major_formatter(FuncFormatter(format_ticks_x))
+    ax.yaxis.set_major_formatter(FuncFormatter(format_ticks_y))
+    
     # Add labels
-    plt.xlabel('Log10(Util_comp / Util_bw)')
-    plt.ylabel('Log10(Util_comp)')
-    plt.title('Utilization Roofline Model')
+    plt.xlabel('Relative Operational Intensity (Util_comp / Util_bw)')
+    plt.ylabel('Compute Utilization (Util_comp)')
+    plt.title(f'{exp_name} Utilization Roofline')
 
     plt.xlim(plot_min_x, plot_max_x)
     plt.ylim(plot_min_y, 0.2)
@@ -90,7 +103,8 @@ def plot_roofline(df, arch_config, output_file):
 def main(profile_file, arch, output_file):
     arch_config = config[arch]
     df = pd.read_csv(profile_file)
-    plot_roofline(df, arch_config, output_file)
+    exp_name = profile_file.split("/")[-1].split(".")[0]
+    plot_roofline(df, exp_name, arch_config, output_file)
     print(f"Plot saved to {output_file}")
 
 if __name__ == "__main__":
@@ -102,5 +116,4 @@ if __name__ == "__main__":
     profile_file = sys.argv[1]
     arch = sys.argv[2]
     output_file = sys.argv[3]
-    
     main(profile_file, arch, output_file)

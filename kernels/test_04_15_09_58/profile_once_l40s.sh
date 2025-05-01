@@ -1,4 +1,6 @@
 #!/bin/bash
+sudo nvidia-smi -ac 9001,1065
+
 BASE_DIR=profile_results_l40s
 mkdir -p $BASE_DIR
 # Add /usr/local/cuda/nsight-compute-2024.3.2/extras/python to Python path

@@ -13,7 +13,7 @@ metrics = {
     "L2_to_L1_traffic": "l1tex__m_xbar2l1tex_read_bytes.sum", # # of bytes read from L2 into L1TEX M-Stage
     "DRAM_to_L2_traffic": "dram__bytes_read.sum", # # of bytes read from DRAM
     "L2_throughput": "l1tex__m_xbar2l1tex_read_bytes.sum.per_second", # L2 measured throughput
-    "DRAM_throughput": "dram__bytes_read.per_second", # DRAM measured throughput
+    "DRAM_throughput": "dram__bytes_read.sum.per_second", # DRAM measured throughput
     "Normal_global_st": "l1tex__t_requests_pipe_lsu_mem_global_op_st.sum",
     "Atom_global_st": "l1tex__t_requests_pipe_lsu_mem_global_op_atom.sum",
     "Red_global_st": "l1tex__t_requests_pipe_lsu_mem_global_op_red.sum",

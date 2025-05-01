@@ -5,7 +5,7 @@ metrics = {
     "Normal_shmem_ld": "sass__inst_executed_shared_loads", # Number of shared memory load instructions executed other than LDSM
     "Atom_shmem_ld": "smsp__inst_executed_op_shared_atom.sum",
     "LDSM": "smsp__inst_executed_op_ldsm.sum", # LDSM: shmem to register using ldmatrix
-    "LDGSTS": "smsp_inst_executed_op_ldgsts.sum", # LDGSTS requests
+    "LDGSTS": "smsp__inst_executed_op_ldgsts.sum", # LDGSTS requests
     "Normal_global_ld": "l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum", # # of requests sent to T-Stage for global loads
     "Atom_global_ld": "l1tex__t_requests_pipe_lsu_mem_global_op_atom.sum",
     "LDGSTS_global_ld": "sm__sass_l1tex_t_requests_pipe_lsu_mem_global_op_ldgsts.sum ",

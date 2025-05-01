@@ -12,3 +12,4 @@ N=$((tN * 16))
 PROBLEM_SHAPE="${B}x${H}x${M}x${N}x${D}"
 echo "Running $PROBLEM_SHAPE"
 ncu --launch-skip 4 --launch-count 1 --export $BASE_DIR/ncu_report_$PROBLEM_SHAPE -f --set full --target-processes all python run_once.py $B $H $M $N $D
+python extract_memory.py $PROBLEM_SHAPE $BASE_DIR/ncu_report_$PROBLEM_SHAPE.ncu-rep $BASE_DIR/memory_$PROBLEM_SHAPE.csv

@@ -47,7 +47,6 @@ def extract_values(ncu_report_file, problem_shape, output_csv):
     L1_to_Reg_traffic_calc = b * h * (m + n * 2) * d * 2
     global_load_calc = b * h * (m + n * 2) * d * 2
     global_load_from_req = results["LDGSTS"] * 512 + normal_global_traffic
-    measured_traffic_delta = results["DRAM_to_L2_traffic"] - global_load_from_req
 
     Reg_to_global_reqs = results["Normal_global_st"] + results["Atom_global_st"] + results["Red_global_st"]
     Reg_to_shmem_reqs = results["Normal_shmem_st"] + results["Atom_shmem_st"]
@@ -66,7 +65,7 @@ def extract_values(ncu_report_file, problem_shape, output_csv):
         f.write(f"L1_to_Reg_traffic_calc,{L1_to_Reg_traffic_calc}\n")
         f.write(f"global_load_calc,{global_load_calc}\n")
         f.write(f"global_load_from_req,{global_load_from_req}\n")
-        f.write(f"measured_traffic_delta,{measured_traffic_delta}\n")
+        f.write(f"global_load_measured,{results["DRAM_to_L2_traffic"]}\n")
         f.write(f"Reg_to_global_reqs,{Reg_to_global_reqs}\n")
         f.write(f"Reg_to_shmem_reqs,{Reg_to_shmem_reqs}\n")
         f.write(f"duration,{duration}\n")

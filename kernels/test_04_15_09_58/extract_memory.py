@@ -55,8 +55,13 @@ def extract_values(ncu_report_file, problem_shape, output_csv):
 
     L1_util = results["L1_util"] * 0.01
     L1_bandwidth = L1_to_Reg_traffic / duration / L1_util
-    L2_bandwidth = results["L2_throughput"] / (results["L2_util"] * 0.01)
-    DRAM_bandwidth = results["DRAM_throughput"] / (results["DRAM_util"] * 0.01)
+    L1_bandwidth_cycle = L1_to_Reg_traffic / cycles / L1_util / b / h
+    L2_util = results["L2_util"] * 0.01
+    L2_bandwidth = results["L2_throughput"] / L2_util
+    L2_bandwidth_cycle = results["L2_to_L1_traffic"] / cycles / L2_util / b / h
+    dram_util = results["DRAM_util"] * 0.01
+    DRAM_bandwidth = results["DRAM_throughput"] / dram_util
+    DRAM_bandwidth_cycle = results["DRAM_to_L2_traffic"] / cycles / dram_util / b / h
 
     # Write to CSV
     with open(output_csv, "w") as f:
@@ -71,8 +76,11 @@ def extract_values(ncu_report_file, problem_shape, output_csv):
         f.write(f"duration,{duration}\n")
         f.write(f"L1_util,{L1_util}\n")
         f.write(f"L1_bandwidth,{L1_bandwidth}\n")
+        f.write(f"L1_bandwidth_cycle,{L1_bandwidth_cycle}\n")
         f.write(f"L2_bandwidth,{L2_bandwidth}\n")
+        f.write(f"L2_bandwidth_cycle,{L2_bandwidth_cycle}\n")
         f.write(f"DRAM_bandwidth,{DRAM_bandwidth}\n")
+        f.write(f"DRAM_bandwidth_cycle,{DRAM_bandwidth_cycle}\n")
 
 
 if __name__ == "__main__":

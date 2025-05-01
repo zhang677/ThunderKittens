@@ -28,7 +28,7 @@ metrics = {
 
 def extract_values(ncu_report_file, problem_shape, output_csv):
     assert problem_shape in ncu_report_file, f"Shape {problem_shape} does not match {ncu_report_file}"
-    b, h, n, m, d = tuple(map(int, problem_shape.split("x")))
+    b, h, m, n, d = tuple(map(int, problem_shape.split("x")))
     results = {}
     my_context = ncu_report.load_report(ncu_report_file)
     my_range = my_context.range_by_idx(0)
@@ -44,8 +44,8 @@ def extract_values(ncu_report_file, problem_shape, output_csv):
     # Normal global traffic also goes through L1
     normal_global_traffic = (results["Normal_global_ld"] + results["Atom_global_ld"] - results["LDGSTS_global_ld"]) * 16
     L1_to_Reg_traffic = results["Normal_shmem_ld"] * 16 + results["LDSM"] * 512 + results["Atom_shmem_ld"] * 16 + normal_global_traffic
-    L1_to_Reg_traffic_calc = b * h * (m * 2 + n * 2) * d * 2
-    global_load_calc = b * h * (m * 2 + n * 2) * d * 2
+    L1_to_Reg_traffic_calc = b * h * (m + n * 2) * d * 2
+    global_load_calc = b * h * (m + n * 2) * d * 2
     global_load_from_req = results["LDGSTS"] * 512 + normal_global_traffic
 
     Reg_to_global_reqs = results["Normal_global_st"] + results["Atom_global_st"] + results["Red_global_st"]

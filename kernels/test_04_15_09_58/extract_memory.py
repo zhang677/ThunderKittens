@@ -19,7 +19,7 @@ metrics = {
     "Red_global_st": "l1tex__t_requests_pipe_lsu_mem_global_op_red.sum",
     "Normal_shmem_st": "sass__inst_executed_shared_stores",
     "Atom_shmem_st": "smsp__inst_executed_op_shared_atom.sum",
-    "Duration": "gpu__time_duration",
+    "Duration": "gpu__time_duration.sum",
     "Cycles": "smsp__cycles_elapsed.max", 
     "L1_util": "l1tex__throughput.avg.pct_of_peak_sustained_active",
     "L2_util": "lts__throughput.avg.pct_of_peak_sustained_elapsed",

@@ -43,7 +43,7 @@ def extract_values(ncu_report_file, problem_shape, output_csv):
 
     # Normal global traffic also goes through L1
     assert results["LDGSTS"] == results["LDGSTS_global_ld"]
-    L1_to_Global_reqs = results["Normal_global_ld"] + results["Atom_global_ld"] + results["LDGSTS"]
+    L1_to_Global_reqs = results["Normal_global_ld"] + results["Atom_global_ld"]
     L1_to_Shared_reqs = results["Normal_shmem_ld"] + results["Atom_shmem_ld"] + results["LDSM"]
     L1_to_Global_traffic = L1_to_Global_reqs * 512
     L1_to_Shared_traffic = L1_to_Shared_reqs * 512

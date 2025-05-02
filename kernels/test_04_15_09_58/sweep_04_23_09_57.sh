@@ -1,4 +1,5 @@
 #!/bin/bash
+sudo nvidia-smi -ac 9001,1065
 BASE_DIR=profile_results_l40s
 mkdir -p $BASE_DIR
 

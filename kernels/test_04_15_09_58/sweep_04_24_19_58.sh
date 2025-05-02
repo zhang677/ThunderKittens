@@ -1,5 +1,5 @@
 #!/bin/bash
-
+sudo nvidia-smi -ac 1215,1065
 BASE_DIR=profile_results_a100
 mkdir -p $BASE_DIR
 

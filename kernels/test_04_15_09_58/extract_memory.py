@@ -6,7 +6,7 @@ metrics = {
     "Atom_shmem_ld": "smsp__inst_executed_op_shared_atom.sum",
     "LDSM": "smsp__inst_executed_op_ldsm.sum", # LDSM: shmem to register using ldmatrix
     "LDGSTS": "smsp__inst_executed_op_ldgsts.sum", # # of warp instructions executed: LDGSTS
-    "Normal_global_ld": "l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum", # # of requests sent to T-Stage for global loads
+    "Total_global_ld": "l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum", # # of requests sent to T-Stage for global loads
     "Atom_global_ld": "l1tex__t_requests_pipe_lsu_mem_global_op_atom.sum",
     "LDGSTS_global_ld": "sm__sass_l1tex_t_requests_pipe_lsu_mem_global_op_ldgsts.sum", # # of requests sent to T-Stage for LDGSTS
     "LDGSTS_traffic": "sm__sass_l1tex_m_xbar2l1tex_read_bytes_mem_global_op_ldgsts_cache_bypass.sum", # LDGSTS traffic (L2 to shmem)
@@ -43,7 +43,7 @@ def extract_values(ncu_report_file, problem_shape, output_csv):
 
     # Normal global traffic also goes through L1
     assert results["LDGSTS"] == results["LDGSTS_global_ld"]
-    L1_to_Global_reqs = results["Normal_global_ld"] + results["Atom_global_ld"]
+    L1_to_Global_reqs = results["Total_global_ld"] + results["Atom_global_ld"] - results["LDGSTS_global_ld"]
     L1_to_Shared_reqs = results["Normal_shmem_ld"] + results["Atom_shmem_ld"] + results["LDSM"]
     L1_to_Global_traffic = L1_to_Global_reqs * 512
     L1_to_Shared_traffic = L1_to_Shared_reqs * 512

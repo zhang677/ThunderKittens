@@ -3,7 +3,8 @@ sudo nvidia-smi -ac 1215,1065
 
 BASE_DIR=profile_results_a100
 mkdir -p $BASE_DIR
-export PYTHONPATH=$PYTHONPATH:/home/ubuntu/genghan/NVIDIA-Nsight-Compute-2025.2/extras/python
+# export PYTHONPATH=$PYTHONPATH:/home/ubuntu/genghan/NVIDIA-Nsight-Compute-2025.2/extras/python
+export PYTHONPATH=$PYTHONPATH:/home/ubuntu/genghan/nsight-compute-2025.1/extras/python
 B=13
 H=8
 M=$1

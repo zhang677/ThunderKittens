@@ -5,10 +5,10 @@ metrics = {
     "Normal_shmem_ld": "sass__inst_executed_shared_loads", # Number of shared memory load instructions executed other than LDSM
     "Atom_shmem_ld": "smsp__inst_executed_op_shared_atom.sum",
     "LDSM": "smsp__inst_executed_op_ldsm.sum", # LDSM: shmem to register using ldmatrix
-    "LDGSTS": "smsp__inst_executed_op_ldgsts.sum", # LDGSTS requests
+    "LDGSTS": "smsp__inst_executed_op_ldgsts.sum", # # of warp instructions executed: LDGSTS
     "Normal_global_ld": "l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum", # # of requests sent to T-Stage for global loads
     "Atom_global_ld": "l1tex__t_requests_pipe_lsu_mem_global_op_atom.sum",
-    "LDGSTS_global_ld": "sm__sass_l1tex_t_requests_pipe_lsu_mem_global_op_ldgsts.sum",
+    "LDGSTS_global_ld": "sm__sass_l1tex_t_requests_pipe_lsu_mem_global_op_ldgsts.sum", # # of requests sent to T-Stage for LDGSTS
     "LDGSTS_traffic": "sm__sass_l1tex_m_xbar2l1tex_read_bytes_mem_global_op_ldgsts_cache_bypass.sum", # LDGSTS traffic (L2 to shmem)
     "L2_to_L1_traffic": "l1tex__m_xbar2l1tex_read_bytes.sum", # # of bytes read from L2 into L1TEX M-Stage
     "DRAM_to_L2_traffic": "dram__bytes_read.sum", # # of bytes read from DRAM
@@ -42,14 +42,14 @@ def extract_values(ncu_report_file, problem_shape, output_csv):
                 results[nick_name] = my_action.metric_by_name(metric_name).as_double()
 
     # Normal global traffic also goes through L1
-    normal_global_traffic = (results["Normal_global_ld"] + results["Atom_global_ld"] - results["LDGSTS_global_ld"]) * 16
-    L1_to_Reg_traffic = results["Normal_shmem_ld"] * 16 + results["LDSM"] * 512 + results["Atom_shmem_ld"] * 16 + normal_global_traffic
-    L1_to_Reg_traffic_calc = b * h * (m + n * 2) * d * 2
-    global_load_calc = b * h * (m + n * 2) * d * 2
-    global_load_from_req = results["LDGSTS"] * 512 + normal_global_traffic
-
-    Reg_to_global_reqs = results["Normal_global_st"] + results["Atom_global_st"] + results["Red_global_st"]
-    Reg_to_shmem_reqs = results["Normal_shmem_st"] + results["Atom_shmem_st"]
+    assert results["LDGSTS"] == results["LDGSTS_global_ld"]
+    L1_to_Global_reqs = results["Normal_global_ld"] + results["Atom_global_ld"] + results["LDGSTS"]
+    L1_to_Shared_reqs = results["Normal_shmem_ld"] + results["Atom_shmem_ld"] + results["LDSM"]
+    L1_to_Global_traffic = L1_to_Global_reqs * 512
+    L1_to_Shared_traffic = L1_to_Shared_reqs * 512
+    L1_to_Reg_traffic = L1_to_Shared_traffic + L1_to_Global_traffic
+    L2_to_SharedMemory_traffic = results["LDGSTS_traffic"]
+    L2_to_L1Cache_traffic = results["L2_to_L1_traffic"] - L2_to_SharedMemory_traffic
     duration = results["Duration"] * 1e-9
     cycles = results["Cycles"]
 
@@ -63,22 +63,26 @@ def extract_values(ncu_report_file, problem_shape, output_csv):
     DRAM_bandwidth = results["DRAM_throughput"] / dram_util
     DRAM_bandwidth_cycle = results["DRAM_to_L2_traffic"] / cycles / dram_util / b / h
 
+    L2_ld_traffic_calc = b * h * (m + n * 2) * d * 2
     # Write to CSV
     with open(output_csv, "w") as f:
         f.write("Item,Value\n")
         f.write(f"L1_to_Reg_traffic,{L1_to_Reg_traffic}\n")
-        f.write(f"L1_to_Reg_traffic_calc,{L1_to_Reg_traffic_calc}\n")
-        f.write(f"global_load_calc,{global_load_calc}\n")
-        f.write(f"global_load_from_req,{global_load_from_req}\n")
-        f.write(f"global_load_measured,{results["DRAM_to_L2_traffic"]}\n")
-        f.write(f"Reg_to_global_reqs,{Reg_to_global_reqs}\n")
-        f.write(f"Reg_to_shmem_reqs,{Reg_to_shmem_reqs}\n")
+        f.write(f"L1_to_Global_traffic,{L1_to_Global_traffic}\n")
+        f.write(f"L1_to_Shared_traffic,{L1_to_Shared_traffic}\n")
+        f.write(f"L2_to_L1_traffic,{results['L2_to_L1_traffic']}\n")
+        f.write(f"L2_to_SharedMemory_traffic,{L2_to_SharedMemory_traffic}\n")
+        f.write(f"L2_to_L1Cache_traffic,{L2_to_L1Cache_traffic}\n")
+        f.write(f"DRAM_to_L2_traffic,{results["DRAM_to_L2_traffic"]}\n")
+        f.write(f"DRAM_to_L2_traffic_calc,{L2_ld_traffic_calc}\n")
         f.write(f"duration,{duration}\n")
         f.write(f"L1_util,{L1_util}\n")
         f.write(f"L1_bandwidth,{L1_bandwidth}\n")
         f.write(f"L1_bandwidth_cycle,{L1_bandwidth_cycle}\n")
+        f.write(f"L2_util,{L2_util}\n")
         f.write(f"L2_bandwidth,{L2_bandwidth}\n")
         f.write(f"L2_bandwidth_cycle,{L2_bandwidth_cycle}\n")
+        f.write(f"DRAM_util,{dram_util}\n")
         f.write(f"DRAM_bandwidth,{DRAM_bandwidth}\n")
         f.write(f"DRAM_bandwidth_cycle,{DRAM_bandwidth_cycle}\n")
 

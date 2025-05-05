@@ -50,4 +50,4 @@ for M in [16, 32, 48, 64]:
             print("Unsupported configuration")
             continue
         assert torch.allclose(ref_output, output, atol=1e-2), "Outputs are not close!"
-        print(f"Test passed for M={M}, D={D}")
+        print(f"Test passed for B={B}, M={M}, D={D}")

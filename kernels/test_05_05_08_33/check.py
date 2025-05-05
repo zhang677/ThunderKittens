@@ -5,7 +5,7 @@ torch.manual_seed(42)
 max_shared_mem = 167936
 num_pipes = 2
 B, H, N = 1, 108, 512
-for M in [16, 32, 48]:
+for M in [16, 32, 48, 64]:
     for D in [64, 96, 128, 160]:
         B = max_shared_mem // ((M + 16 * 2 * num_pipes) * D * 2)
         q = torch.randn((B, M, H, D), device='cuda', dtype=torch.bfloat16)
@@ -13,6 +13,7 @@ for M in [16, 32, 48]:
         v = torch.randn((B, N, H, D), device='cuda', dtype=torch.bfloat16)
         ref_output = torch.nn.functional.scaled_dot_product_attention(q.transpose(1,2).contiguous(), k.transpose(1,2).contiguous(), v.transpose(1,2).contiguous(), is_causal=False).transpose(1,2).contiguous()
         output = torch.zeros_like(q)
+        print(f"Running test for {B}x{H}x{M}x{N}x{D}")
         if M == 16 and D == 64:
             test_05_05_08_33.wrapped_attend_ker_16_64(q, k, v, output)
         elif M == 16 and D == 96:

@@ -121,10 +121,9 @@ __global__ void attend_ker(const __grid_constant__ globals<M, D> g) {
 template<int M, int D>
 void run_attend_ker(globals<M, D> g) {
     unsigned long mem_planned = 
-    (2 * PIPE_STAGES * 
-     typename attend_params<M, D>::shared_kv_tile::num_elements * 
+    (2 * PIPE_STAGES * attend_params<M, D>::shared_kv_tile::num_elements * 
      sizeof(typename attend_params<M, D>::shared_kv_tile::dtype)) +
-    (typename attend_params<M, D>::shared_qo_tile::num_elements * 
+    (attend_params<M, D>::shared_qo_tile::num_elements * 
      sizeof(typename attend_params<M, D>::shared_qo_tile::dtype));
     
     unsigned long mem_size = mem_planned;

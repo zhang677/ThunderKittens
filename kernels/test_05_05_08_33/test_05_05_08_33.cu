@@ -143,8 +143,8 @@ void run_attend_ker(globals<M, D> g) {
     }
 }
 
-PYBIND11_MODULE(test_04_15_09_58, m) {
-    m.doc() = "test_04_15_09_58 python module";
+PYBIND11_MODULE(test_05_05_08_33, m) {
+    m.doc() = "test_05_05_08_33 python module";
     
     // Expose the different template specializations
     py::bind_function<run_attend_ker<16, 64>>(m, "wrapped_attend_ker_16_64", 

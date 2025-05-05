@@ -1,0 +1,79 @@
+Section Name,Metric Name,Metric Unit,Metric Value
+GPU Speed Of Light Throughput,DRAM Frequency,Ghz,1.21
+GPU Speed Of Light Throughput,SM Frequency,Ghz,1.10
+GPU Speed Of Light Throughput,Elapsed Cycles,cycle,1121625
+GPU Speed Of Light Throughput,Memory Throughput,%,88.63
+GPU Speed Of Light Throughput,DRAM Throughput,%,88.63
+GPU Speed Of Light Throughput,Duration,ms,1.02
+GPU Speed Of Light Throughput,L1/TEX Cache Throughput,%,26.86
+GPU Speed Of Light Throughput,L2 Cache Throughput,%,70.75
+GPU Speed Of Light Throughput,SM Active Cycles,cycle,1103441.44
+GPU Speed Of Light Throughput,Compute (SM) Throughput,%,33.16
+PM Sampling,Maximum Buffer Size,Mbyte,1.57
+PM Sampling,Dropped Samples,sample,0
+PM Sampling,Maximum Sampling Interval,cycle,20000
+PM Sampling,# Pass Groups,,4
+Compute Workload Analysis,Executed Ipc Active,inst/cycle,1.34
+Compute Workload Analysis,Executed Ipc Elapsed,inst/cycle,1.33
+Compute Workload Analysis,Issue Slots Busy,%,33.61
+Compute Workload Analysis,Issued Ipc Active,inst/cycle,1.34
+Compute Workload Analysis,SM Busy,%,33.61
+Memory Workload Analysis,Memory Throughput,Tbyte/s,1.38
+Memory Workload Analysis,Mem Busy,%,38.47
+Memory Workload Analysis,Max Bandwidth,%,88.63
+Memory Workload Analysis,L1/TEX Hit Rate,%,0
+Memory Workload Analysis,L2 Compression Success Rate,%,0
+Memory Workload Analysis,L2 Compression Ratio,,0
+Memory Workload Analysis,L2 Compression Input Sectors,sector,0
+Memory Workload Analysis,L2 Hit Rate,%,24.69
+Memory Workload Analysis,Mem Pipes Busy,%,21.02
+Scheduler Statistics,One or More Eligible,%,33.91
+Scheduler Statistics,Issued Warp Per Scheduler,,0.34
+Scheduler Statistics,No Eligible,%,66.09
+Scheduler Statistics,Active Warps Per Scheduler,warp,1.98
+Scheduler Statistics,Eligible Warps Per Scheduler,warp,0.37
+Warp State Statistics,Warp Cycles Per Issued Instruction,cycle,5.85
+Warp State Statistics,Warp Cycles Per Executed Instruction,cycle,5.85
+Warp State Statistics,Avg. Active Threads Per Warp,,32
+Warp State Statistics,Avg. Not Predicated Off Threads Per Warp,,29.67
+Instruction Statistics,Avg. Executed Instructions Per Scheduler,inst,370834
+Instruction Statistics,Executed Instructions,inst,160200288
+Instruction Statistics,Avg. Issued Instructions Per Scheduler,inst,370868.79
+Instruction Statistics,Issued Instructions,inst,160215318
+Launch Statistics,Block Size,,32
+Launch Statistics,Function Cache Configuration,,CachePreferNone
+Launch Statistics,Grid Size,,864
+Launch Statistics,Registers Per Thread,register/thread,189
+Launch Statistics,Shared Memory Configuration Size,Kbyte,135.17
+Launch Statistics,Driver Shared Memory Per Block,Kbyte/block,1.02
+Launch Statistics,Dynamic Shared Memory Per Block,Kbyte/block,12.29
+Launch Statistics,Static Shared Memory Per Block,byte/block,0
+Launch Statistics,# SMs,SM,108
+Launch Statistics,Stack Size,,1024
+Launch Statistics,Threads,thread,27648
+Launch Statistics,# TPCs,,54
+Launch Statistics,Enabled TPC IDs,,all
+Launch Statistics,Uses Green Context,,0
+Launch Statistics,Waves Per SM,,1
+Occupancy,Block Limit SM,block,32
+Occupancy,Block Limit Registers,block,8
+Occupancy,Block Limit Shared Mem,block,10
+Occupancy,Block Limit Warps,block,64
+Occupancy,Theoretical Active Warps per SM,warp,8
+Occupancy,Theoretical Occupancy,%,12.50
+Occupancy,Achieved Occupancy,%,12.28
+Occupancy,Achieved Active Warps Per SM,warp,7.86
+GPU and Memory Workload Distribution,Average DRAM Active Cycles,cycle,1099670.30
+GPU and Memory Workload Distribution,Total DRAM Elapsed Cycles,cycle,49630720
+GPU and Memory Workload Distribution,Average L1 Active Cycles,cycle,1103441.44
+GPU and Memory Workload Distribution,Total L1 Elapsed Cycles,cycle,120778074
+GPU and Memory Workload Distribution,Average L2 Active Cycles,cycle,1061864.59
+GPU and Memory Workload Distribution,Total L2 Elapsed Cycles,cycle,85762160
+GPU and Memory Workload Distribution,Average SM Active Cycles,cycle,1103441.44
+GPU and Memory Workload Distribution,Total SM Elapsed Cycles,cycle,120778074
+GPU and Memory Workload Distribution,Average SMSP Active Cycles,cycle,1093685.43
+GPU and Memory Workload Distribution,Total SMSP Elapsed Cycles,cycle,483112296
+Source Counters,Branch Instructions Ratio,%,0.01
+Source Counters,Branch Instructions,inst,1725408
+Source Counters,Branch Efficiency,%,100
+Source Counters,Avg. Divergent Branches,,0

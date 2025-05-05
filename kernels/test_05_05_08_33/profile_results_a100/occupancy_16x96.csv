@@ -1,0 +1,6 @@
+Item,Value
+Registers,12
+Shared_Mem,10
+Warps,64
+SM,32
+Minimum,10

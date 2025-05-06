@@ -18,7 +18,6 @@ tail -n +2 "$SHAPE_FILE" | while IFS=',' read -r shape batch_min rest; do
     echo "Running $PROBLEM_SHAPE"
     if [ ! -f "$BASE_DIR/ncu_report_$PROBLEM_SHAPE.ncu-rep" ]; then
         echo "Report file $BASE_DIR/ncu_report_$PROBLEM_SHAPE.ncu-rep already exists. Skipping..."
-        continue
     else
         ncu --launch-skip 4 --launch-count 1 \
             --export "$BASE_DIR/ncu_report_$PROBLEM_SHAPE" \

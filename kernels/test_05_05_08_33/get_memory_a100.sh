@@ -25,5 +25,5 @@ tail -n +2 "$SHAPE_FILE" | while IFS=',' read -r shape batch_min rest; do
         -f --set full --target-processes all \
         python run_once.py $B $H $M $N $D
     
-    python extract_block_limits.py $BASE_DIR/ncu_report_$PROBLEM_SHAPE.ncu-rep $BASE_DIR/occupancy_${M}x${D}.csv
+    python extract_memory.py $PROBLEM_SHAPE $BASE_DIR/ncu_report_$PROBLEM_SHAPE.ncu-rep $BASE_DIR/memory_${PROBLEM_SHAPE}.csv
 done

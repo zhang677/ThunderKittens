@@ -26,6 +26,10 @@ metrics = {
     "L2_util": "lts__throughput.avg.pct_of_peak_sustained_elapsed",
     "DRAM_util": "gpu__dram_throughput.avg.pct_of_peak_sustained_elapsed",
     "SMs": "launch__sm_count",
+    "Warp_cycles_per_exec": "smsp__average_warps_active_per_inst_executed.ratio",
+    "Stall_wait": "smsp__average_warps_issue_stalled_wait_per_issue_active.ratio",
+    "Stall_long_scoreboard": "smsp__average_warps_issue_stalled_long_scoreboard_per_issue_active.ratio",
+    "Stall_short_scoreboard": "smsp__average_warps_issue_stalled_short_scoreboard_per_issue_active.ratio",
 }
 
 def extract_values(ncu_report_file, problem_shape, output_csv):
@@ -72,6 +76,7 @@ def extract_values(ncu_report_file, problem_shape, output_csv):
     # Write to CSV
     with open(output_csv, "w") as f:
         f.write("Item,Value\n")
+        f.write(f"SMs,{num_SMs}\n")
         f.write(f"L1_to_Reg_traffic,{L1_to_Reg_traffic}\n")
         f.write(f"L1_to_Global_traffic,{L1_to_Global_traffic}\n")
         f.write(f"L1_to_Shared_traffic,{L1_to_Shared_traffic}\n")
@@ -93,6 +98,11 @@ def extract_values(ncu_report_file, problem_shape, output_csv):
         f.write(f"DRAM_util,{dram_util}\n")
         f.write(f"DRAM_bandwidth,{DRAM_bandwidth}\n")
         f.write(f"DRAM_bandwidth_cycle,{DRAM_bandwidth_cycle}\n")
+        f.write(f"Warp_cycles_per_exec,{results['Warp_cycles_per_exec']}\n")
+        f.write(f"Stall_wait,{results['Stall_wait']}\n")
+        f.write(f"Stall_long_scoreboard,{results['Stall_long_scoreboard']}\n")
+        f.write(f"Stall_short_scoreboard,{results['Stall_short_scoreboard']}\n")
+        
 
 
 if __name__ == "__main__":

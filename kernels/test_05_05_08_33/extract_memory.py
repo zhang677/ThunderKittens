@@ -5,6 +5,7 @@ metrics = {
     "Normal_shmem_ld": "sass__inst_executed_shared_loads", # Number of shared memory load instructions executed other than LDSM
     "Atom_shmem_ld": "smsp__inst_executed_op_shared_atom.sum",
     "LDSM": "smsp__inst_executed_op_ldsm.sum", # LDSM: shmem to register using ldmatrix
+    "L1_local_ld": "l1tex__t_requests_pipe_lsu_mem_local_op_ld.sum", # # of requests sent to T-Stage for local loads
     "LDGSTS": "smsp__inst_executed_op_ldgsts.sum", # # of warp instructions executed: LDGSTS
     "Total_global_ld": "l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum", # # of requests sent to T-Stage for global loads
     "Atom_global_ld": "l1tex__t_requests_pipe_lsu_mem_global_op_atom.sum",
@@ -24,6 +25,7 @@ metrics = {
     "L1_util": "l1tex__throughput.avg.pct_of_peak_sustained_active",
     "L2_util": "lts__throughput.avg.pct_of_peak_sustained_elapsed",
     "DRAM_util": "gpu__dram_throughput.avg.pct_of_peak_sustained_elapsed",
+    "SMs": "launch__sm_count",
 }
 
 def extract_values(ncu_report_file, problem_shape, output_csv):
@@ -45,23 +47,26 @@ def extract_values(ncu_report_file, problem_shape, output_csv):
     assert results["LDGSTS"] == results["LDGSTS_global_ld"]
     L1_to_Global_reqs = results["Total_global_ld"] + results["Atom_global_ld"] - results["LDGSTS_global_ld"]
     L1_to_Shared_reqs = results["Normal_shmem_ld"] + results["Atom_shmem_ld"] + results["LDSM"]
+    L1_to_Local_reqs = results["L1_local_ld"]
     L1_to_Global_traffic = L1_to_Global_reqs * 512
     L1_to_Shared_traffic = L1_to_Shared_reqs * 512
-    L1_to_Reg_traffic = L1_to_Shared_traffic + L1_to_Global_traffic
+    L1_to_Local_traffic = L1_to_Local_reqs * 128
+    L1_to_Reg_traffic = L1_to_Shared_traffic + L1_to_Global_traffic + L1_to_Local_traffic
     L2_to_SharedMemory_traffic = results["LDGSTS_traffic"]
     L2_to_L1Cache_traffic = results["L2_to_L1_traffic"] - L2_to_SharedMemory_traffic
     duration = results["Duration"] * 1e-9
     cycles = results["Cycles"]
 
+    num_SMs = results["SMs"]
     L1_util = results["L1_util"] * 0.01
     L1_bandwidth = L1_to_Reg_traffic / duration / L1_util
-    L1_bandwidth_cycle = L1_to_Reg_traffic / cycles / L1_util / b / h
+    L1_bandwidth_cycle = L1_to_Reg_traffic / cycles / L1_util / num_SMs
     L2_util = results["L2_util"] * 0.01
     L2_bandwidth = results["L2_throughput"] / L2_util
-    L2_bandwidth_cycle = results["L2_to_L1_traffic"] / cycles / L2_util / b / h
+    L2_bandwidth_cycle = results["L2_to_L1_traffic"] / cycles / L2_util / num_SMs
     dram_util = results["DRAM_util"] * 0.01
     DRAM_bandwidth = results["DRAM_throughput"] / dram_util
-    DRAM_bandwidth_cycle = results["DRAM_to_L2_traffic"] / cycles / dram_util / b / h
+    DRAM_bandwidth_cycle = results["DRAM_to_L2_traffic"] / cycles / dram_util / num_SMs
 
     L2_ld_traffic_calc = b * h * (m + n * 2) * d * 2
     # Write to CSV
@@ -70,6 +75,7 @@ def extract_values(ncu_report_file, problem_shape, output_csv):
         f.write(f"L1_to_Reg_traffic,{L1_to_Reg_traffic}\n")
         f.write(f"L1_to_Global_traffic,{L1_to_Global_traffic}\n")
         f.write(f"L1_to_Shared_traffic,{L1_to_Shared_traffic}\n")
+        f.write(f"L1_to_Local_traffic,{L1_to_Local_traffic}\n")
         f.write(f"L2_to_L1_traffic,{results['L2_to_L1_traffic']}\n")
         f.write(f"L2_to_SharedMemory_traffic,{L2_to_SharedMemory_traffic}\n")
         f.write(f"L2_to_L1Cache_traffic,{L2_to_L1Cache_traffic}\n")
@@ -77,6 +83,7 @@ def extract_values(ncu_report_file, problem_shape, output_csv):
         f.write(f"DRAM_to_L2_traffic_calc,{L2_ld_traffic_calc}\n")
         f.write(f"DRAM_to_L2_traffic_err,{(results['DRAM_to_L2_traffic'] - L2_ld_traffic_calc) / L2_ld_traffic_calc}\n")
         f.write(f"duration,{duration}\n")
+        f.write(f"cycles,{cycles}\n")
         f.write(f"L1_util,{L1_util}\n")
         f.write(f"L1_bandwidth,{L1_bandwidth}\n")
         f.write(f"L1_bandwidth_cycle,{L1_bandwidth_cycle}\n")

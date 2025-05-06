@@ -25,6 +25,8 @@ for sub_id, outer_value in enumerate(outer_list):
     real_latency_list = []
     latency_list = []
     latency_type_list = []
+    batch_list = []
+    err_list = []
     for inner_value in inner_list:
         if mode == "d":
             m = inner_value
@@ -42,12 +44,14 @@ for sub_id, outer_value in enumerate(outer_list):
         latency_list.append(latency)
         latency_type_list.append(latency_type)
         real_latency_list.append(real_latency)
-    plt.plot(inner_list, latency_list, color=colors[sub_id], linestyle='--', label=f"{mode}={outer_value}")
+        batch_list.append(int(cur_df["batch_min"].values[0]))
+        err_list.append(f'{(latency - real_latency) / real_latency:.2%}')
+    plt.plot(inner_list, latency_list, color=colors[sub_id], linestyle='--', label=f"{mode}={outer_value}, Err={err_list}")
     for inner_id in range(len(inner_list)):
         inner_value = inner_list[inner_id]
         latency_type = latency_type_list[inner_id]
         plt.plot(inner_value, latency_list[inner_id], color=colors[sub_id], marker=markers[latency_type])
-    plt.plot(inner_list, real_latency_list, color=colors[sub_id], linestyle='-', marker='^', label=f"Real {mode}={outer_value}")    
+    plt.plot(inner_list, real_latency_list, color=colors[sub_id], linestyle='-', marker='^', label=f"Real {mode}={outer_value}, batch={batch_list}")    
 
 plt.yscale('log')
 if mode == "d":

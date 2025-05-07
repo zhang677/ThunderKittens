@@ -7,7 +7,7 @@ mkdir -p $BASE_DIR
 export PYTHONPATH=$PYTHONPATH:/home/ubuntu/genghan/nsight-compute-2025.1/extras/python
 N=6336
 H=108
-SHAPE_FILE=plot_results/merge_min_latency.csv
+SHAPE_FILE=plot_results/merge_inst_latency.csv
 # Skip header line and process each row
 tail -n +2 "$SHAPE_FILE" | while IFS=',' read -r shape batch_min rest; do
     # Extract M and H from the shape field (format: MxD)

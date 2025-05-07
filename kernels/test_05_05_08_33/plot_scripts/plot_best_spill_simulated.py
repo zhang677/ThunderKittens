@@ -2,18 +2,20 @@ import pandas as pd
 import sys
 import matplotlib.pyplot as plt
 
-def get_latency_type(real_latency, simulated_latency, long_simulated_latency):
-    if simulated_latency < real_latency and real_latency < long_simulated_latency:
-        return simulated_latency, "Decoupled"
-    elif simulated_latency < real_latency and long_simulated_latency < real_latency:
-        return long_simulated_latency, "Coupled"
-    else:
-        raise ValueError("Invalid latency comparison")
+def get_latency_type(real_latency, latency_dict):
+    candidates = {}
+    for key, latency in latency_dict.items():
+        if latency < real_latency:
+            candidates[key] = latency
+    if len(candidates) == 0:
+        raise ValueError("No latency is less than real latency")
+    max_key = max(candidates, key=candidates.get)
+    return candidates[max_key], max_key
 
 colors = ['blue', 'red', 'green', 'purple']
-markers = {"Coupled": 'x', "Decoupled": 's'}
+markers = {"Coupled": 'x', "Decoupled": 's', 'Decoupled+spill': 'o'}
 
-latency_record = "/scratch/zgh23/ThunderKittens/kernels/test_05_05_08_33/plot_results/merge_inst_latency.csv"
+latency_record = "/scratch/zgh23/ThunderKittens/kernels/test_05_05_08_33/plot_results/merge_spill_latency.csv"
 df = pd.read_csv(latency_record)
 
 m_list = [16, 32, 48, 64]
@@ -47,8 +49,13 @@ for sub_id, outer_value in enumerate(outer_list):
         cur_df = df[df["shape"] == f"{m}x{d}"]
         real_latency = cur_df["min_latency"].values[0]
         simulated_latency = cur_df["simulated_latency"].values[0]
-        long_simulated_latency = cur_df["long_simulated_latency"].values[0]
-        latency, latency_type = get_latency_type(real_latency, simulated_latency, long_simulated_latency)
+        long_simulated_latency = cur_df["inst_simulated_latency"].values[0]
+        spill_simulated_latency = cur_df["spill_simulated_latency"].values[0]
+        latency, latency_type = get_latency_type(real_latency, {
+            "Decoupled": simulated_latency, 
+            "Coupled": long_simulated_latency, 
+            "Decoupled+spill": spill_simulated_latency
+        })
         latency_list.append(latency)
         latency_type_list.append(latency_type)
         real_latency_list.append(real_latency)
@@ -61,6 +68,7 @@ for sub_id, outer_value in enumerate(outer_list):
         plt.plot(inner_value, latency_list[inner_id], color=colors[sub_id], marker=markers[latency_type])
     plt.plot(inner_list, real_latency_list, color=colors[sub_id], linestyle='-', marker='^', label=f"Real {mode}={outer_value}, batch={batch_list}")    
 
+
 plt.yscale('log')
 if mode == "d":
     plt.xlabel("m")
@@ -71,7 +79,7 @@ else:
 plt.ylabel("Latency (cycles)")
 plt.legend()
 plt.grid()
-output_path = f"/scratch/zgh23/ThunderKittens/kernels/test_05_05_08_33/plot_results/merged_latency_{mode}.png"
+output_path = f"/scratch/zgh23/ThunderKittens/kernels/test_05_05_08_33/plot_results/merged_spill_latency_{mode}.png"
 plt.tight_layout()
 plt.savefig(output_path)
 plt.close()

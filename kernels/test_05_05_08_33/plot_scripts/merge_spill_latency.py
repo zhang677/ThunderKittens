@@ -42,18 +42,23 @@ def get_max_latency(filename):
     
     return last_line['latency']
 
-base_dir = sys.argv[1]
-output_dir = sys.argv[2]
+def get_spill(df, shape):
+    return float(df.loc[df["shape"] == shape, "spill"].iloc[0])
+
+base_dir = "/scratch/zgh23/ThunderKittens/kernels/test_05_05_08_33/profile_results_a100"
+output_dir = "/scratch/zgh23/ThunderKittens/kernels/test_05_05_08_33/plot_results" 
 sim_dir = "/scratch/zgh23/ThunderKittens/kernels/test_04_15_09_58/profile_results_a100"
 
 # Enumerate over all the files start with "output_" under base_dir
-with open(os.path.join(output_dir, "merge_min_latency.csv"), "w") as outf:
-    outf.write("shape,batch_min,min_latency,batch_occupancy,occupancy_latency,simulated_latency,long_simulated_latency\n")
+with open(os.path.join(output_dir, "merge_spill_latency.csv"), "w") as outf:
+    outf.write("shape,batch_min,min_latency,batch_occupancy,occupancy_latency,simulated_latency,inst_simulated_latency,spill_simulated_latency,inst_spill_simulated_latency\n")
     base_dir_list = os.listdir(base_dir)
     # Filter the list to only include files that start with "output_"
     base_dir_list = [file for file in base_dir_list if file.startswith("output_")]
     # Sort the list of files based on mxd
     base_dir_list.sort(key=lambda x: extract_m_d(x.split("_")[1].split(".")[0]))
+    summary_memory_file = os.path.join(output_dir, "summary_memory.csv")
+    summary_memory_df = pd.read_csv(summary_memory_file)
     for file in base_dir_list:
         if file.startswith("output_"):
             input_file = os.path.join(base_dir, file)
@@ -70,11 +75,15 @@ with open(os.path.join(output_dir, "merge_min_latency.csv"), "w") as outf:
                 batch_calc = extract_b(df.iloc[-3]['shape'])
                 batch_min = extract_b(min_shape)
                 calc_latency = df.iloc[-3]['latency_per_batch']
+                
 
             m, d = extract_m_d(shapes[0])
             simulated_file = os.path.join(base_dir, f"simulated_{m}x{d}.csv")
             simulated_latency = get_max_latency(simulated_file)
             long_simulated_file = os.path.join(sim_dir, f"simulated_13x8x{m}x{d}.csv")
             long_simulated_latency = get_max_latency(long_simulated_file)
-            outf.write(f"{m}x{d},{batch_min},{min_latency},{batch_calc},{calc_latency},{simulated_latency},{long_simulated_latency}\n")
+            spill_factor = get_spill(summary_memory_df, f"{m}x{d}")
+            spill_simulated_latency = simulated_latency * (1 + spill_factor)
+            inst_spill_simulated_latency = long_simulated_latency * (1 + spill_factor)
+            outf.write(f"{m}x{d},{batch_min},{min_latency},{batch_calc},{calc_latency},{simulated_latency},{long_simulated_latency},{spill_simulated_latency},{inst_spill_simulated_latency}\n")
         

@@ -19,7 +19,7 @@ output_dir = "/scratch/zgh23/ThunderKittens/kernels/test_05_05_08_33/plot_result
 base_dir = "/scratch/zgh23/ThunderKittens/kernels/test_05_05_08_33/profile_results_a100"
 
 with open(os.path.join(output_dir, "bw_calc.csv"), "w") as outf:
-    outf.write("shape,l1,l2,dram\n")
+    outf.write("shape,l1,l2,dram,l1_util,l2_util,dram_util\n")
     base_dir_list = os.listdir(base_dir)
     # Filter the list to only include files that start with "output_"
     base_dir_list = [file for file in base_dir_list if file.startswith("memory_")]
@@ -33,4 +33,7 @@ with open(os.path.join(output_dir, "bw_calc.csv"), "w") as outf:
             l1 = get_value(df, "L1_bandwidth_cycle")
             l2 = get_value(df, "L2_bandwidth_cycle")
             dram = get_value(df, "DRAM_bandwidth_cycle")
-            outf.write(f"{m}x{d},{l1},{l2},{dram}\n")
+            l1_util = get_value(df, "L1_util")
+            l2_util = get_value(df, "L2_util")
+            dram_util = get_value(df, "DRAM_util")
+            outf.write(f"{m}x{d},{l1},{l2},{dram},{l1_util},{l2_util},{dram_util}\n")

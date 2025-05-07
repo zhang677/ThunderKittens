@@ -31,6 +31,7 @@ metrics = {
     "Stall_wait": "smsp__average_warps_issue_stalled_wait_per_issue_active.ratio",
     "Stall_long_scoreboard": "smsp__average_warps_issue_stalled_long_scoreboard_per_issue_active.ratio",
     "Stall_short_scoreboard": "smsp__average_warps_issue_stalled_short_scoreboard_per_issue_active.ratio",
+    "Num_threads": "launch__block_size" 
 }
 
 def extract_values(ncu_report_file, problem_shape, output_csv):
@@ -90,6 +91,7 @@ def extract_values(ncu_report_file, problem_shape, output_csv):
         f.write(f"DRAM_to_L2_traffic_err,{(results['DRAM_to_L2_traffic'] - L2_ld_traffic_calc) / L2_ld_traffic_calc}\n")
         f.write(f"duration,{duration}\n")
         f.write(f"cycles,{cycles}\n")
+        f.write(f"Num_warps", f"{results['Num_threads'] // 32}\n")
         f.write(f"L1_util,{L1_util}\n")
         f.write(f"L1_bandwidth,{L1_bandwidth}\n")
         f.write(f"L1_bandwidth_cycle,{L1_bandwidth_cycle}\n")

@@ -22,7 +22,7 @@ tail -n +2 "$SHAPE_FILE" | while IFS=',' read -r shape head rest; do
         ncu --launch-skip 4 --launch-count 1 \
             --export "$BASE_DIR/ncu_report_$PROBLEM_SHAPE" \
             -f --set full --target-processes all \
-            python run_once.py $B $H $M $N $D
+            python run_once.py $B $M $N $D
     fi
     
     python extract_memory.py $PROBLEM_SHAPE $BASE_DIR/ncu_report_$PROBLEM_SHAPE.ncu-rep $BASE_DIR/memory_${PROBLEM_SHAPE}.csv

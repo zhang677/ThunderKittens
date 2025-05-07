@@ -69,9 +69,9 @@ __global__ void attend_ker(const __grid_constant__ globals<M, D, NUM_WORKERS> g)
     typename params::template attn_tile<float>::col_vec max_vec_last, max_vec, norm_vec;
     
     // going through shared memory improves coalescing of dram reads.
-    load<1, false>(qo_smem[head][0], g.Qg, {batch, 0, head, 0});
+    load<1, false>(qo_smem[head], g.Qg, {batch, 0, head, 0});
     __syncwarp();
-    load(q_reg, qo_smem[head][0]);
+    load(q_reg, qo_smem[head]);
     __syncthreads();
     if constexpr(D == 128) q_reg *= __float2bfloat16(0.08838834764f * 1.44269504089f);
     else if constexpr(D == 64) q_reg *= __float2bfloat16(0.125f * 1.44269504089f);
@@ -113,9 +113,9 @@ __global__ void attend_ker(const __grid_constant__ globals<M, D, NUM_WORKERS> g)
 
     o_reg /= norm_vec;
     __syncthreads();
-    store(qo_smem[head][0], o_reg);
+    store(qo_smem[head], o_reg);
     __syncwarp();
-    store<1, false>(g.Og, qo_smem[head][0], {batch, 0, head, 0});
+    store<1, false>(g.Og, qo_smem[head], {batch, 0, head, 0});
 }
 
 template<int M, int D, int NUM_WORKERS>

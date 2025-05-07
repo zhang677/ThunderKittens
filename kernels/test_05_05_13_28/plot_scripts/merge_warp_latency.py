@@ -31,5 +31,5 @@ with open(os.path.join(output_dir, "merge_warp_latency.csv"), "w") as outf:
             shape = file.split("_")[1].split(".")[0]
             m, d = extract_m_d(shape)
             num_warps = get_value(df, "Num_warps")
-            latency = get_value(df, "cycles")
+            latency = get_value(df, "cycles") / num_warps
             outf.write(f"{shape},{num_warps},{latency}\n")

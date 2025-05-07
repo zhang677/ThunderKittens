@@ -91,7 +91,7 @@ def extract_values(ncu_report_file, problem_shape, output_csv):
         f.write(f"DRAM_to_L2_traffic_err,{(results['DRAM_to_L2_traffic'] - L2_ld_traffic_calc) / L2_ld_traffic_calc}\n")
         f.write(f"duration,{duration}\n")
         f.write(f"cycles,{cycles}\n")
-        f.write(f"Num_warps", f"{results['Num_threads'] // 32}\n")
+        f.write(f"Num_warps,{results['Num_threads'] // 32}\n")
         f.write(f"L1_util,{L1_util}\n")
         f.write(f"L1_bandwidth,{L1_bandwidth}\n")
         f.write(f"L1_bandwidth_cycle,{L1_bandwidth_cycle}\n")

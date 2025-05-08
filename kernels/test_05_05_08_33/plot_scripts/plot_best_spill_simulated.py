@@ -71,7 +71,7 @@ for sub_id, outer_value in enumerate(outer_list):
         plt.plot(inner_value, latency_list[inner_id], color=colors[sub_id], marker=markers[latency_type])
     plt.plot(inner_list, real_latency_list, color=colors[sub_id], linestyle='-', marker='^', label=f"Real {mode}={outer_value}, batch={batch_list}")    
 
-
+plt.ylim(1e5, 3e6)
 plt.yscale('log')
 if mode == "d":
     plt.xlabel("m")

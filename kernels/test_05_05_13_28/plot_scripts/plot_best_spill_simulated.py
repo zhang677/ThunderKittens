@@ -18,7 +18,7 @@ def get_latency_type(real_latency, latency_dict):
 colors = ['blue', 'red', 'green', 'purple']
 markers = {"Coupled": 'x', "Decoupled": 's', 'Decoupled+spill': 'o'}
 
-latency_record = "/scratch/zgh23/ThunderKittens/kernels/test_05_05_08_33/plot_results/merge_spill_latency.csv"
+latency_record = "/scratch/zgh23/ThunderKittens/kernels/test_05_05_13_28/plot_results/merge_spill_latency.csv"
 df = pd.read_csv(latency_record)
 
 m_list = [16, 32, 48, 64]
@@ -82,7 +82,7 @@ else:
 plt.ylabel("Latency (cycles)")
 plt.legend()
 plt.grid()
-output_path = f"/scratch/zgh23/ThunderKittens/kernels/test_05_05_08_33/plot_results/merged_spill_latency_{mode}.png"
+output_path = f"/scratch/zgh23/ThunderKittens/kernels/test_05_05_13_28/plot_results/merged_spill_latency_{mode}.png"
 plt.tight_layout()
 plt.savefig(output_path)
 plt.close()
